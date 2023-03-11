@@ -1,0 +1,11 @@
+{
+  "name": "Write Layouts",
+  "id": "1216353512297695331",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": [
+    "figma"
+  ]
+}
