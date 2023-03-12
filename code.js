@@ -3,6 +3,15 @@ let message = 'Auto Layout!';
 const changeArray = string => string.split(/\s/);
 const changeNumber = string => Number(string.replace(/[^0-9]/g, ''));
 
+function checkNameHasKey(frame) {
+  const nameList = changeArray(frame.name);
+  nameList.forEach(item => {
+    if(item === 'row' || item === 'col' || item === 'stack') {
+      return true;
+    }
+  });
+}
+
 function editFrameProps(frame) {
   let props = {
     flexDirection: 'NONE',
@@ -71,7 +80,9 @@ for(const targetLayer of figma.currentPage.selection) {
     editFrameProps(targetLayer);
 
     for(const node of nodeList) {
-      editFrameProps(node);
+      if(checkNameHasKey(node)) {
+        editFrameProps(node);
+      }
     }
   }
 }
