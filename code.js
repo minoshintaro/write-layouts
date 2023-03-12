@@ -1,15 +1,9 @@
 let message = 'Auto Layout!';
 
-const changeArray = string => string.split(/\s/);
-const changeNumber = string => Number(string.replace(/[^0-9]/g, ''));
-
-function checkNameHasKey(frame) {
-  const nameList = changeArray(frame.name);
-  nameList.forEach(item => {
-    if(item === 'row' || item === 'col' || item === 'stack') {
-      return true;
-    }
-  });
+const changeStringToArray = string => string.split(/\s/);
+const changeStringToNumber = string => Number(string.replace(/[^0-9]/g, ''));
+const checkListHasKey = (list, keys) => {
+  return keys.filter(key => list.includes(key));
 }
 
 function editFrameProps(frame) {
@@ -23,12 +17,11 @@ function editFrameProps(frame) {
     paddingRight: 0
   }
 
-  const nameList = changeArray(frame.name);
+  const nameList = changeStringToArray(frame.name);
 
   nameList.forEach(item => {
-    if(changeNumber(item)) {
-      const pixelValue = changeNumber(item);
-
+    if(changeStringToNumber(item)) {
+      const pixelValue = changeStringToNumber(item);
       if(item.match(/^g-/)) {
         props.gap = pixelValue;
       } else if(item.match(/^p-/)) {
@@ -62,13 +55,15 @@ function editFrameProps(frame) {
     }
   });
 
-  frame.layoutMode = props.flexDirection;
-  frame.primaryAxisAlignItems = props.justifyContent;
-  frame.itemSpacing = props.gap;
-  frame.paddingTop = props.paddingTop;
-  frame.paddingBottom = props.paddingBottom;
-  frame.paddingLeft = props.paddingLeft;
-  frame.paddingRight = props.paddingRight;
+  if(checkListHasKey(nameList, ['row', 'col', 'stack'])) {
+    frame.layoutMode = props.flexDirection;
+    frame.primaryAxisAlignItems = props.justifyContent;
+    frame.itemSpacing = props.gap;
+    frame.paddingTop = props.paddingTop;
+    frame.paddingBottom = props.paddingBottom;
+    frame.paddingLeft = props.paddingLeft;
+    frame.paddingRight = props.paddingRight;
+  }
 }
 
 for(const targetLayer of figma.currentPage.selection) {
@@ -80,9 +75,7 @@ for(const targetLayer of figma.currentPage.selection) {
     editFrameProps(targetLayer);
 
     for(const node of nodeList) {
-      if(checkNameHasKey(node)) {
-        editFrameProps(node);
-      }
+      editFrameProps(node);
     }
   }
 }
