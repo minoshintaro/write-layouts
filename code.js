@@ -1,55 +1,52 @@
-const message = 'Done!';
+let message = 'Done!';
+let props = {
+  flexDirection: 'NONE',
+  justifyContent: 'MIN',
+  gap: 0,
+  paddingTop: 0,
+  paddingBottom: 0,
+  paddingLeft: 0,
+  paddingRight: 0
+}
 const changeArray = string => string.split(/\s/);
 const changeNumber = string => Number(string.replace(/[^0-9]/g, ''));
 
 for(const target of figma.currentPage.selection) {
-  const nameList = changeArray(target.name);
-
   if('layoutMode' in target) {
+    const nameList = changeArray(target.name);
+
     nameList.forEach(item => {
-      if(item === 'row') {
-        target.layoutMode = 'HORIZONTAL';
-      }
-      if(item === 'col' || item === 'stack') {
-        target.layoutMode = 'VERTICAL';
+      if(changeNumber(item)) {
+        if(item.match(/^g-/)) {
+          props.gap = changeNumber(item);
+        } else if(item.match(/^p-/) || item.match(/^py-/) || item.match(/^pt-/)) {
+          props.paddingTop = changeNumber(item);
+        } else if(item.match(/^p-/) || item.match(/^py-/) || item.match(/^pb-/)) {
+          props.paddingBottom = changeNumber(item);
+        } else if(item.match(/^p-/) || item.match(/^px-/) || item.match(/^pl-/)) {
+          props.paddingLeft = changeNumber(item);
+        } else if(item.match(/^p-/) || item.match(/^px-/) || item.match(/^pr-/)) {
+          props.paddingRight = changeNumber(item);
+        }
+      } else {
+        if(item === 'row') {
+          props.flexDirection = 'HORIZONTAL';
+        } else if(item === 'col' || item === 'stack') {
+          props.flexDirection = 'VERTICAL';
+        } else if(item === 'g-auto') {
+          props.justifyContent = 'SPACE_BETWEEN';
+        }
       }
     });
-  }
 
-  if(target.layoutMode !== 'NONE') {
-    nameList.forEach(item => {
-      if(item === 'g-auto') {
-        target.primaryAxisAlignItems = 'SPACE_BETWEEN';
-      } else if(item.match(/^g-/) && changeNumber(item)) {
-        target.itemSpacing = changeNumber(item);
-      } else {
-        target.itemSpacing = 0;
-      }
-
-      if(item.match(/^p-/) || item.match(/^py-/) || item.match(/^pt-/) && changeNumber(item)) {
-        target.paddingTop = changeNumber(item);
-      } else {
-        target.paddingTop = 0;
-      }
-
-      if(item.match(/^p-/) || item.match(/^py-/) || item.match(/^pb-/) && changeNumber(item)) {
-				target.paddingBottom = changeNumber(item);
-      } else {
-        target.paddingBottom = 0;
-      }
-
-      if(item.match(/^p-/) || item.match(/^px-/) || item.match(/^pl-/) && changeNumber(item)) {
-				target.paddingLeft = changeNumber(item);
-      } else {
-        target.paddingLeft = 0;
-      }
-
-      if(item.match(/^p-/) || item.match(/^px-/) || item.match(/^pr-/) && changeNumber(item)) {
-				target.paddingRight = changeNumber(item);
-      } else {
-        target.paddingRight = 0;
-      }
-    });
+    target.layoutMode = props.flexDirection;
+    target.primaryAxisAlignItems = props.justifyContent;
+    target.itemSpacing = props.gap;
+    target.paddingTop = props.paddingTop;
+    target.paddingBottom = props.paddingBottom;
+    target.paddingLeft = props.paddingLeft;
+    target.paddingRight = props.paddingRight;
   }
 }
+
 figma.closePlugin(message);
