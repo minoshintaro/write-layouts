@@ -1,51 +1,78 @@
-let message = 'Done!';
-let props = {
-  flexDirection: 'NONE',
-  justifyContent: 'MIN',
-  gap: 0,
-  paddingTop: 0,
-  paddingBottom: 0,
-  paddingLeft: 0,
-  paddingRight: 0
-}
+let message = 'Auto Layout!';
+
 const changeArray = string => string.split(/\s/);
 const changeNumber = string => Number(string.replace(/[^0-9]/g, ''));
 
-for(const target of figma.currentPage.selection) {
-  if('layoutMode' in target) {
-    const nameList = changeArray(target.name);
+function editFrameProps(frame) {
+  let props = {
+    flexDirection: 'NONE',
+    justifyContent: 'MIN',
+    gap: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingLeft: 0,
+    paddingRight: 0
+  }
 
-    nameList.forEach(item => {
-      if(changeNumber(item)) {
-        if(item.match(/^g-/)) {
-          props.gap = changeNumber(item);
-        } else if(item.match(/^p-/) || item.match(/^py-/) || item.match(/^pt-/)) {
-          props.paddingTop = changeNumber(item);
-        } else if(item.match(/^p-/) || item.match(/^py-/) || item.match(/^pb-/)) {
-          props.paddingBottom = changeNumber(item);
-        } else if(item.match(/^p-/) || item.match(/^px-/) || item.match(/^pl-/)) {
-          props.paddingLeft = changeNumber(item);
-        } else if(item.match(/^p-/) || item.match(/^px-/) || item.match(/^pr-/)) {
-          props.paddingRight = changeNumber(item);
-        }
-      } else {
-        if(item === 'row') {
-          props.flexDirection = 'HORIZONTAL';
-        } else if(item === 'col' || item === 'stack') {
-          props.flexDirection = 'VERTICAL';
-        } else if(item === 'g-auto') {
-          props.justifyContent = 'SPACE_BETWEEN';
-        }
+  const nameList = changeArray(frame.name);
+
+  nameList.forEach(item => {
+    if(changeNumber(item)) {
+      const pixelValue = changeNumber(item);
+
+      if(item.match(/^g-/)) {
+        props.gap = pixelValue;
+      } else if(item.match(/^p-/)) {
+        props.paddingTop = pixelValue;
+        props.paddingBottom = pixelValue;
+        props.paddingLeft = pixelValue;
+        props.paddingRight = pixelValue;
+      } else if(item.match(/^py-/)) {
+        props.paddingTop = pixelValue;
+        props.paddingBottom = pixelValue;
+      } else if(item.match(/^px-/)) {
+        props.paddingLeft = pixelValue;
+        props.paddingRight = pixelValue;
+      } else if(item.match(/^pt-/)) {
+        props.paddingTop = pixelValue;
+      } else if(item.match(/^pb-/)) {
+        props.paddingBottom = pixelValue;
+      } else if(item.match(/^pl-/)) {
+        props.paddingLeft = pixelValue;
+      } else if(item.match(/^pr-/)) {
+        props.paddingRight = pixelValue;
       }
+    } else {
+      if(item === 'row') {
+        props.flexDirection = 'HORIZONTAL';
+      } else if(item === 'col' || item === 'stack') {
+        props.flexDirection = 'VERTICAL';
+      } else if(item === 'g-auto') {
+        props.justifyContent = 'SPACE_BETWEEN';
+      }
+    }
+  });
+
+  frame.layoutMode = props.flexDirection;
+  frame.primaryAxisAlignItems = props.justifyContent;
+  frame.itemSpacing = props.gap;
+  frame.paddingTop = props.paddingTop;
+  frame.paddingBottom = props.paddingBottom;
+  frame.paddingLeft = props.paddingLeft;
+  frame.paddingRight = props.paddingRight;
+}
+
+for(const targetLayer of figma.currentPage.selection) {
+  if('layoutMode' in targetLayer) {
+    const nodeList = targetLayer.findAllWithCriteria({
+      types: ['FRAME']
     });
 
-    target.layoutMode = props.flexDirection;
-    target.primaryAxisAlignItems = props.justifyContent;
-    target.itemSpacing = props.gap;
-    target.paddingTop = props.paddingTop;
-    target.paddingBottom = props.paddingBottom;
-    target.paddingLeft = props.paddingLeft;
-    target.paddingRight = props.paddingRight;
+    editFrameProps(targetLayer);
+
+    for(const node of nodeList) {
+      editFrameProps(node);
+    }
   }
 }
 
