@@ -72,12 +72,14 @@ function editFrameProps(frame) {
 }
 
 for(const targetLayer of figma.currentPage.selection) {
-  if('layoutMode' in targetLayer) {
+  if(targetLayer.type === 'FRAME' || targetLayer.type === 'COMPONENT') {
     editFrameProps(targetLayer);
 
     for(const node of getNodeList(targetLayer)) {
       editFrameProps(node);
     }
+  } else {
+    message = 'Run only Frames or Components';
   }
 }
 
