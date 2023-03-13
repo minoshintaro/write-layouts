@@ -5,6 +5,11 @@ const changeStringToNumber = string => Number(string.replace(/[^0-9]/g, ''));
 const checkListHasKey = (list, keys) => {
   return keys.filter(key => list.includes(key));
 }
+const getNodeList = target => {
+  return target.findAllWithCriteria({
+    types: ['FRAME']
+  });
+};
 
 function editFrameProps(frame) {
   let props = {
@@ -45,7 +50,7 @@ function editFrameProps(frame) {
         props.paddingRight = pixelValue;
       }
     } else {
-      if(item === 'row') {
+      if(item === 'row' || item === 'flex') {
         props.flexDirection = 'HORIZONTAL';
       } else if(item === 'col' || item === 'stack') {
         props.flexDirection = 'VERTICAL';
@@ -55,7 +60,7 @@ function editFrameProps(frame) {
     }
   });
 
-  if(checkListHasKey(nameList, ['row', 'col', 'stack'])) {
+  if(checkListHasKey(nameList, ['row', 'col', 'flex', 'stack'])) {
     frame.layoutMode = props.flexDirection;
     frame.primaryAxisAlignItems = props.justifyContent;
     frame.itemSpacing = props.gap;
@@ -67,16 +72,14 @@ function editFrameProps(frame) {
 }
 
 for(const targetLayer of figma.currentPage.selection) {
-  if('layoutMode' in targetLayer) {
-    const nodeList = targetLayer.findAllWithCriteria({
-      types: ['FRAME']
-    });
-
+  if(targetLayer.type === 'FRAME' || targetLayer.type === 'COMPONENT') {
     editFrameProps(targetLayer);
 
-    for(const node of nodeList) {
+    for(const node of getNodeList(targetLayer)) {
       editFrameProps(node);
     }
+  } else {
+    message = 'Run only Frames or Components';
   }
 }
 
