@@ -1,4 +1,4 @@
-let message = 'Auto Layout!';
+let message = 'Write Layouts :-)';
 
 const keys = {
   row: ['row', 'flex'],
@@ -12,6 +12,7 @@ const keys = {
   paddingBottom: /^p-/,
   paddingLeft: /^pl-/,
   paddingRight: /^pr-/,
+  width: /^w-/,
   aspectRatio: /^[0-9]{1,2}x[0-9]{1,2}$/
 };
 
@@ -26,17 +27,33 @@ const getNodeList = target => {
   });
 };
 
-// function editSizeProps(frame) {
-//   let props = {
-//     w: frame.width,
-//     h: frame.height
-//
-//   };
-//
-//   const nameList = changeStringToArray(frame.name);
-//
-//   frame.resizeWithoutConstraints();
-// }
+function editSizePropsByName(frame) {
+  let props = {
+    width: frame.width,
+    height: frame.height,
+  };
+  let cue = false;
+
+  const nameList = changeStringToArray(frame.name);
+
+  nameList.forEach(item => {
+    if(item.match(keys.width)) {
+      props.width = changeStringToNumber(item);
+      cue = true;
+    }
+  });
+  nameList.forEach(item => {
+    if(item.match(keys.aspectRatio)) {
+      const ratio = item.split('x').map(Number);
+      props.height = Math.trunc(props.width * ratio[1] / ratio[0]);
+      cue = true;
+    }
+  });
+
+  if(cue) {
+    frame.resizeWithoutConstraints(props.width, props.height);
+  }
+}
 
 function editFramePropsByName(frame) {
   let props = {
@@ -100,14 +117,14 @@ function editFramePropsByName(frame) {
 }
 
 for(const targetLayer of figma.currentPage.selection) {
+  if(targetLayer.type === 'FRAME' || targetLayer.type === 'COMPONENT' || targetLayer.type === 'INSTANCE' || targetLayer.type === 'RECTANGLE' ) {
+    editSizePropsByName(targetLayer);
+  }
   if(targetLayer.type === 'FRAME' || targetLayer.type === 'COMPONENT') {
     editFramePropsByName(targetLayer);
-
     for(const node of getNodeList(targetLayer)) {
       editFramePropsByName(node);
     }
-  } else {
-    message = 'Run only Frames or Components';
   }
 }
 
