@@ -16,29 +16,21 @@ const keys = {
   aspectRatio: /^[0-9]{1,2}x[0-9]{1,2}$/
 };
 
-const changeStringToArray = string => string.split(/\s/);
-const changeStringToNumber = string => Number(string.replace(/[^0-9]/g, ''));
-const checkListHasKey = (list, keys) => {
-  return keys.filter(key => list.includes(key));
-};
-const getNodeList = target => {
-  return target.findAllWithCriteria({
-    types: ['FRAME']
-  });
-};
+const convertStringToArray = string => string.split(/\s/);
+const convertStringToNumber = string => Number(string.replace(/[^0-9]/g, ''));
+const getNodeList = target => target.findAllWithCriteria({ types: ['FRAME'] });
 
-function editSizePropsByName(frame) {
+function editSizeProps(frame) {
   let props = {
     width: frame.width,
     height: frame.height,
   };
   let cue = false;
 
-  const nameList = changeStringToArray(frame.name);
-
+  const nameList = convertStringToArray(frame.name);
   nameList.forEach(item => {
     if(item.match(keys.width)) {
-      props.width = changeStringToNumber(item);
+      props.width = convertStringToNumber(item);
       cue = true;
     }
   });
@@ -55,7 +47,7 @@ function editSizePropsByName(frame) {
   }
 }
 
-function editFramePropsByName(frame) {
+function editAutoLayoutProps(frame) {
   let props = {
     flexDirection: 'NONE',
     justifyContent: 'MIN',
@@ -65,13 +57,12 @@ function editFramePropsByName(frame) {
     paddingLeft: 0,
     paddingRight: 0
   }
+  let cue = false;
 
-  const nameList = changeStringToArray(frame.name);
-
+  const nameList = convertStringToArray(frame.name);
   nameList.forEach(item => {
-    if(changeStringToNumber(item)) {
-      const pixelValue = changeStringToNumber(item);
-
+    const pixelValue = convertStringToNumber(item);
+    if(pixelValue) {
       if(item.match(keys.gap)) {
         props.gap = pixelValue;
       } else if(item.match(keys.padding)) {
@@ -97,15 +88,17 @@ function editFramePropsByName(frame) {
     } else {
       if(item === keys.row[0] || item === keys.row[1]) {
         props.flexDirection = 'HORIZONTAL';
+        cue = 'x';
       } else if(item === keys.column[0] || item === keys.column[1]) {
         props.flexDirection = 'VERTICAL';
+        cue = 'y';
       } else if(item === keys.justification[0]) {
         props.justifyContent = 'SPACE_BETWEEN';
       }
     }
   });
 
-  if(checkListHasKey(nameList, [...keys.row, ...keys.column])) {
+  if(cue) {
     frame.layoutMode = props.flexDirection;
     frame.primaryAxisAlignItems = props.justifyContent;
     frame.itemSpacing = props.gap;
@@ -118,12 +111,12 @@ function editFramePropsByName(frame) {
 
 for(const targetLayer of figma.currentPage.selection) {
   if(targetLayer.type === 'FRAME' || targetLayer.type === 'COMPONENT' || targetLayer.type === 'INSTANCE' || targetLayer.type === 'RECTANGLE' ) {
-    editSizePropsByName(targetLayer);
+    editSizeProps(targetLayer);
   }
   if(targetLayer.type === 'FRAME' || targetLayer.type === 'COMPONENT') {
-    editFramePropsByName(targetLayer);
+    editAutoLayoutProps(targetLayer);
     for(const node of getNodeList(targetLayer)) {
-      editFramePropsByName(node);
+      editAutoLayoutProps(node);
     }
   }
 }
