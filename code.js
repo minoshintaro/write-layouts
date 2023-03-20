@@ -13,7 +13,7 @@ const keys = {
   paddingBlock: /^py-/,
   paddingInline: /^px-/,
   paddingTop: /^pt-/,
-  paddingBottom: /^p-/,
+  paddingBottom: /^pb-/,
   paddingLeft: /^pl-/,
   paddingRight: /^pr-/,
   width: /^w-/,
@@ -24,13 +24,13 @@ const convertStringToArray = string => string.split(/\s/);
 const convertStringToNumber = string => Number(string.replace(/[^0-9]/g, ''));
 const getNodeList = target => target.findAllWithCriteria({ types: ['FRAME'] });
 
-function editAutoLayoutProps(frame) {
+function editAutoLayoutProps(node) {
   let props = {
-    flexDirection: frame.layoutMode,
-    justifyContent: frame.primaryAxisAlignItems,
-    aliginItems: frame.counterAxisAlignItems,
-    mainSizng: frame.primaryAxisSizingMode,
-    subSizing: frame.counterAxisSizingMode,
+    flexDirection: node.layoutMode,
+    justifyContent: node.primaryAxisAlignItems,
+    aliginItems: node.counterAxisAlignItems,
+    mainSizng: node.primaryAxisSizingMode,
+    subSizing: node.counterAxisSizingMode,
     gap: 0,
     paddingTop: 0,
     paddingBottom: 0,
@@ -38,7 +38,7 @@ function editAutoLayoutProps(frame) {
     paddingRight: 0
   }
 
-  const nameList = convertStringToArray(frame.name);
+  const nameList = convertStringToArray(node.name);
   nameList.forEach(item => {
     const pixelValue = convertStringToNumber(item);
     if(pixelValue) {
@@ -78,25 +78,25 @@ function editAutoLayoutProps(frame) {
   });
 
   if(state.autoLayout) {
-    frame.layoutMode = props.flexDirection;
-    frame.primaryAxisAlignItems = props.justifyContent;
-    frame.itemSpacing = props.gap;
-    frame.paddingTop = props.paddingTop;
-    frame.paddingBottom = props.paddingBottom;
-    frame.paddingLeft = props.paddingLeft;
-    frame.paddingRight = props.paddingRight;
+    node.layoutMode = props.flexDirection;
+    node.primaryAxisAlignItems = props.justifyContent;
+    node.itemSpacing = props.gap;
+    node.paddingTop = props.paddingTop;
+    node.paddingBottom = props.paddingBottom;
+    node.paddingLeft = props.paddingLeft;
+    node.paddingRight = props.paddingRight;
   }
 
   console.log(props);
 }
 
-function editSizeProps(frame) {
+function editSizeProps(node) {
   let props = {
-    width: frame.width,
-    height: frame.height,
+    width: node.width,
+    height: node.height,
   };
 
-  const nameList = convertStringToArray(frame.name);
+  const nameList = convertStringToArray(node.name);
   nameList.forEach(item => {
     if(item.match(keys.width)) {
       props.width = convertStringToNumber(item);
@@ -112,7 +112,7 @@ function editSizeProps(frame) {
   });
 
   if(state.resizing) {
-    frame.resizeWithoutConstraints(props.width, props.height);
+    node.resizeWithoutConstraints(props.width, props.height);
   }
 
   console.log(props);
