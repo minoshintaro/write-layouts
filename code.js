@@ -1,7 +1,10 @@
 let message;
 let state = {
   autoLayout: false,
-  resizing: false
+  resizing: {
+    w: false,
+    h: false
+  }
 };
 
 const keys = {
@@ -29,8 +32,6 @@ function editAutoLayoutProps(node) {
     flexDirection: node.layoutMode,
     justifyContent: node.primaryAxisAlignItems,
     aliginItems: node.counterAxisAlignItems,
-    mainSizng: node.primaryAxisSizingMode,
-    subSizing: node.counterAxisSizingMode,
     gap: 0,
     paddingTop: 0,
     paddingBottom: 0,
@@ -67,10 +68,10 @@ function editAutoLayoutProps(node) {
     } else {
       if(item === keys.row[0] || item === keys.row[1]) {
         props.flexDirection = 'HORIZONTAL';
-        state.autoLayout = true;
+        state.autoLayout = 'X';
       } else if(item === keys.column[0] || item === keys.column[1]) {
         props.flexDirection = 'VERTICAL';
-        state.autoLayout = true;
+        state.autoLayout = 'Y';
       } else if(item === keys.justification[0]) {
         props.justifyContent = 'SPACE_BETWEEN';
       }
@@ -86,12 +87,13 @@ function editAutoLayoutProps(node) {
     node.paddingLeft = props.paddingLeft;
     node.paddingRight = props.paddingRight;
   }
-
-  console.log(props);
 }
 
 function editSizeProps(node) {
+  let decimal = 1;
   let props = {
+    mainAxis: node.primaryAxisSizingMode,
+    subAxis: node.counterAxisSizingMode,
     width: node.width,
     height: node.height,
   };
@@ -100,22 +102,27 @@ function editSizeProps(node) {
   nameList.forEach(item => {
     if(item.match(keys.width)) {
       props.width = convertStringToNumber(item);
-      state.resizing = true;
+      state.resizing.w = true;
     }
-  });
-  nameList.forEach(item => {
     if(item.match(keys.aspectRatio)) {
-      const ratio = item.split('x').map(Number);
-      props.height = Math.trunc(props.width * ratio[1] / ratio[0]);
-      state.resizing = true;
+      const fraction = item.split('x').map(Number);
+      decimal = fraction[1] / fraction[0];
+      state.resizing.h = true;
     }
   });
 
-  if(state.resizing) {
-    node.resizeWithoutConstraints(props.width, props.height);
+  if(state.resizing.w) {
+    if(node.layoutMode === 'HORIZONTAL') {
+      node.primaryAxisSizingMode = 'FIXED';
+    } else if(node.layoutMode === 'VERTICAL') {
+      node.counterAxisSizingMode = 'FIXED';
+    }
+  }
+  if(state.resizing.h) {
+    props.height = Math.trunc(props.width * decimal);
   }
 
-  console.log(props);
+  node.resizeWithoutConstraints(props.width, props.height);
 }
 
 for(const targetLayer of figma.currentPage.selection) {
@@ -130,11 +137,13 @@ for(const targetLayer of figma.currentPage.selection) {
   }
 }
 
-if(state.autoLayout && state.resizing) {
-  message = 'Auto Layout and Resizing';
-} else if(state.autoLayout) {
-  message = 'Auto Layout';
-} else if(state.resizing) {
+if(state.autoLayout) {
+  if(state.resizing.w || state.resizing.h) {
+    message = 'Auto Layout and Resizing';
+  } else {
+    message = 'Auto Layout';
+  }
+} else if(state.resizing.w || state.resizing.h) {
   message = 'Resizing';
 } else {
   message = 'No change :-)';
