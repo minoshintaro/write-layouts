@@ -2,15 +2,20 @@
   "name": "write-layout",
   "version": "1.0.0",
   "description": "Your Figma Plugin",
-  "main": "code.js",
+  "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "watch": "npm run build -- --watch"
+    "clean": "rimraf dist/",
+    "_build": "tsc -p tsconfig.json",
+    "b": "parcel build src/code.ts",
+    "dev": "tsc --watch"
   },
   "author": "",
   "license": "",
   "devDependencies": {
-    "@figma/plugin-typings": "*",
-    "typescript": "*"
+    "@figma/plugin-typings": "^1.62.0",
+    "npm-run-all": "^4.1.5",
+    "parcel": "^2.8.3",
+    "rimraf": "^4.4.1",
+    "typescript": "^5.0.2"
   }
 }

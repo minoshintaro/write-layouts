@@ -3,8 +3,8 @@
 *.log.*
 node_modules
 
-out/
 dist/
 
+.parcel-cache
 .DS_Store
 Thumbs.db
