@@ -1,7 +1,7 @@
 import { nameIs } from './nameIs';
 import { nameTo } from './nameTo';
 
-export function setAutoLayoutToFrame(currentNode: SceneNode): void {
+export function setAutoLayout(currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME' || currentNode.type === 'COMPONENT') {
     const subNodeList = currentNode.findAllWithCriteria({ types: ['FRAME'] });
 
@@ -36,29 +36,6 @@ export function setAutoLayoutToFrame(currentNode: SceneNode): void {
           if (nameIs.padding(item) || nameIs.paddingInline(item) || nameIs.paddingRight(item)) {
             props.paddingRight = pixelValue;
           }
-
-          // if (nameIs.gap(item)) {
-          //   props.gap = pixelValue;
-          // } else if (nameIs.padding(item)) {
-          //   props.paddingTop = pixelValue;
-          //   props.paddingBottom = pixelValue;
-          //   props.paddingLeft = pixelValue;
-          //   props.paddingRight = pixelValue;
-          // } else if (nameIs.paddingBlock(item)) {
-          //   props.paddingTop = pixelValue;
-          //   props.paddingBottom = pixelValue;
-          // } else if (nameIs.paddingInline(item)) {
-          //   props.paddingLeft = pixelValue;
-          //   props.paddingRight = pixelValue;
-          // } else if (nameIs.paddingTop(item)) {
-          //   props.paddingTop = pixelValue;
-          // } else if (nameIs.paddingBottom(item)) {
-          //   props.paddingBottom = pixelValue;
-          // } else if (nameIs.paddingLeft(item)) {
-          //   props.paddingLeft = pixelValue;
-          // } else if (nameIs.paddingRight(item)) {
-          //   props.paddingRight = pixelValue;
-          // }
         } else {
           if (nameIs.row(item)) {
             props.flexDirection = 'HORIZONTAL';

@@ -17,11 +17,11 @@ export function setLayerNameToFrame(currentNode: SceneNode): void {
       }
 
       let nameList = nameTo.array(node.name);
-      nameList.filter(item => );
+      // nameList.filter(item => );
 
 
-      const lorem = ;
-      node.name = lorem;
+      // const lorem = ;
+      // node.name = lorem;
 
 
     }

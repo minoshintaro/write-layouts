@@ -3,7 +3,7 @@ const keys: string[] = [
   'fill'
 ];
 
-export function setLayoutToItem(currentNode: SceneNode): void {
+export function setFlexAxis(currentNode: SceneNode): void {
   if ('layoutMode' in currentNode) { // ComponentNode | ComponentSetNode | FrameNode | InstanceNode
     const childNodeList = currentNode.findChildren(item =>
       item.type === 'FRAME' ||
