@@ -1,16 +1,15 @@
 import { nameIs } from './nameIs';
 import { nameTo } from './nameTo';
-import { getParentMode } from './utility';
+import { getParentMode } from './getParentMode';
 
 export function resizeObject(node: SceneNode): void {
   if (node.type === 'FRAME' || node.type === 'RECTANGLE') {
-    // const direction = node.parent && node.parent.type === 'FRAME' ? node.parent.layoutMode : false;
     let cue = {
       w: false,
       h: false
     };
     let props = {
-      flex: false,
+      isFillItem: false,
       justifySelf: node.layoutGrow, // Main axis: 0 | 1
       alignSelf: node.layoutAlign, // Sub axis: 'MIN' | 'CENTER' | 'MAX' | 'STRETCH' | 'INHERIT'
       width: node.width,
@@ -19,19 +18,21 @@ export function resizeObject(node: SceneNode): void {
     };
 
     if (getParentMode(node) === 'HORITONTAL') {
-      props.flex = (node.layoutGrow === 1) ? true : false;
+      props.isFillItem = (node.layoutGrow === 1) ? true : false;
     } else if (getParentMode(node) === 'VERTICAL') {
-      props.flex = (node.layoutAlign === 'STRETCH') ? true : false;
+      props.isFillItem = (node.layoutAlign === 'STRETCH') ? true : false;
     }
 
     for (const item of nameTo.array(node.name)) {
       if (nameIs.width(item)) {
         props.width = nameTo.number(item);
         cue.w = true;
-      } else if (nameIs.height(item)) {
+      }
+      if (nameIs.height(item)) {
         props.height = nameTo.number(item);
         cue.h = true;
-      } else if (nameIs.aspectRatio(item)) {
+      }
+      if (nameIs.aspectRatio(item)) {
         props.ratio = nameTo.decimal(item);
       }
     }
@@ -44,10 +45,12 @@ export function resizeObject(node: SceneNode): void {
       props.width = (value >= 1) ? value : 1;
     }
 
-    if (!props.flex) {
+    if (!props.isFillItem) {
       node.resizeWithoutConstraints(props.width, props.height);
+    } else {
+      figma.closePlugin('Please Change Fill to Fixed');
     }
 
-    // console.log(node.name, props);
+    // console.log(node.name + ':', props);
   }
 }

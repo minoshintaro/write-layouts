@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf dist/",
-    "_build": "tsc -p tsconfig.json",
-    "b": "parcel build src/code.ts",
-    "dev": "tsc --watch"
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc --watch",
+    "b": "run-s clean parcel:build",
+    "parcel:build": "parcel build src/code.ts",
+    "d": "tsc --watch"
   },
   "author": "",
   "license": "",

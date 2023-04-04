@@ -1,4 +1,4 @@
-import { getParentMode } from './utility';
+import { getParentMode } from './getParentMode';
 
 export function logProps(node: SceneNode): void {
   if (node.type === 'FRAME' || node.type === 'COMPONENT') {
