@@ -10,8 +10,9 @@
   ],
   "parameters": [
     {
-      "name": "Command, ",
-      "key": "task"
+      "name": "Command?",
+      "key": "task",
+      "description": "Select the named layer and enter a command."
     }
   ]
 }

@@ -3,41 +3,64 @@ import { resizeObject } from './resizeObject';
 import { setAutoLayout } from './setAutoLayout';
 import { setFlexAxis } from './setFlexAxis';
 
-let message: string = 'Please select layers';
+type Settings = {
+  main: { name: string; message: string}[],
+  sub: { name: string; message: string}[]
+}
 
-const commandCatalog = {
+const commandCatalog: Settings = {
   main: [
     { name: 'Auto Layout', message: 'Auto layout added'},
-    { name: 'Resize Selections', message: 'Resized'},
+    { name: 'Resize', message: 'Resized'},
   ],
   sub: [
     { name: 'Fill Horizontally', message: 'Fill' },
     { name: 'Fixed Horizontally', message: 'Fixed' },
     { name: 'Hug Vertically', message: 'Hug' },
+    { name: 'Align Center', message: 'Center' },
+    { name: 'Align Left', message: 'Left' },
+    { name: 'Align Right', message: 'Right' },
+    { name: 'Align Middle', message: 'Middle' },
+    { name: 'Align Top', message: 'Top' },
+    { name: 'Align Bottom', message: 'Bottom' },
     { name: 'Write by Auto Layout', message: 'Rewrited'}
   ]
 };
 
-function getPassList(list: string[], key: string): string[] {
+function getMatchedList(target: string[], key: string): string[] {
   const k = key.toLowerCase();
-  return list.filter(item => item.toLowerCase().includes(k));
+  return target.filter(item => item.toLowerCase().includes(k));
 }
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
-  const mainList = commandCatalog.main.map(item => item.name);
-  const subList = commandCatalog.sub.map(item => item.name);
-  const answerList = (q: string) => {
+  function getCommandList(key: string): string[] {
+    const mainList = commandCatalog.main.map(item => item.name);
+
+    function checkSubList(key: string): boolean {
+      // RegExp.test(String) // => true | false
+      const list = commandCatalog.sub.map(item => item.name);
+      const pattern = new RegExp(`${key}`, 'gi')
+      return pattern.test(list.toString());
+    }
+
     switch (true) {
-      case q === '': return getPassList(mainList, q);
-      case RegExp(q, 'i').test(subList.toString()): return getPassList(subList, q);
-      default: return getPassList(mainList, q);
+      case key === '':
+        return getMatchedList(mainList, key);
+      case checkSubList(key):
+        const subList = commandCatalog.sub.map(item => item.name);
+        console.log(subList.toString());
+        return getMatchedList(subList, key);
+      default:
+        return getMatchedList(mainList, key);
     }
   }
 
-  result.setSuggestions(answerList(query));
+  result.setSuggestions(getCommandList(query));
 });
 
 figma.on('run', ({ parameters }: RunEvent) => {
+  let message: string = 'Please select layers';
+
   for (const node of figma.currentPage.selection) {
     if (parameters) {
       switch (parameters.task) {
