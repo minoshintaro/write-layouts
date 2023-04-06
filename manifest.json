@@ -12,6 +12,7 @@
     {
       "name": "Command?",
       "key": "task",
+      "allowFreeform": true,
       "description": "Select the named layer and enter a command."
     }
   ]
