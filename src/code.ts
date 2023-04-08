@@ -2,6 +2,7 @@ import { logProps } from './logProps';
 import { resizeObject } from './resizeObject';
 import { setAutoLayout } from './setAutoLayout';
 import { setFlexAxis } from './setFlexAxis';
+import { setLayerName } from './setLayerName';
 
 type Settings = {
   main: { name: string; message: string}[],
@@ -10,20 +11,20 @@ type Settings = {
 
 const commandCatalog: Settings = {
   main: [
-    { name: 'Auto Layout', message: 'Auto layout added'},
-    { name: 'Resize', message: 'Resized'},
+    { name: 'Auto Layout by Layer Name', message: 'Auto layout added'},
+    { name: 'Write Over by Auto Layout', message: 'Layer name rewrited'}
   ],
   sub: [
+    { name: 'Resize', message: 'Resized'},
     { name: 'Fill Horizontally', message: 'Fill' },
     { name: 'Fixed Horizontally', message: 'Fixed' },
     { name: 'Hug Vertically', message: 'Hug' },
-    { name: 'Align Center', message: 'Center' },
-    { name: 'Align Left', message: 'Left' },
-    { name: 'Align Right', message: 'Right' },
-    { name: 'Align Middle', message: 'Middle' },
-    { name: 'Align Top', message: 'Top' },
-    { name: 'Align Bottom', message: 'Bottom' },
-    { name: 'Write by Auto Layout', message: 'Rewrited'}
+    // { name: 'Align Center', message: 'Center' },
+    // { name: 'Align Left', message: 'Left' },
+    // { name: 'Align Right', message: 'Right' },
+    // { name: 'Align Middle', message: 'Middle' },
+    // { name: 'Align Top', message: 'Top' },
+    // { name: 'Align Bottom', message: 'Bottom' },
   ]
 };
 
@@ -70,14 +71,18 @@ figma.on('run', ({ parameters }: RunEvent) => {
           break;
         case commandCatalog.main[1].name:
           message = commandCatalog.main[1].message;
-          resizeObject(node);
+          setLayerName(node);
           break;
         case commandCatalog.sub[0].name:
           message = commandCatalog.sub[0].message;
-          setFlexAxis(node, 'fill');
+          resizeObject(node);
           break;
         case commandCatalog.sub[1].name:
           message = commandCatalog.sub[1].message;
+          setFlexAxis(node, 'fill');
+          break;
+        case commandCatalog.sub[2].name:
+          message = commandCatalog.sub[2].message;
           setFlexAxis(node, 'hug');
           break;
         case 'dev':
