@@ -1,7 +1,7 @@
 import { nameIs } from './nameIs';
-import { nameTo } from './nameTo';
 import { getFrameNodeList } from './getFrameNodeList';
 import { getSplitNameList } from './getSplitNameList';
+import { pattern } from './pattern';
 
 export function setAutoLayout (currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME' || currentNode.type === 'COMPONENT') {
@@ -11,97 +11,70 @@ export function setAutoLayout (currentNode: SceneNode): void {
         let props = {
           flexDirection: node.layoutMode, // 'NONE' | 'HORIZONTAL' | 'VERTICAL'
           justifyContent: node.primaryAxisAlignItems, // 'MIN' | 'MAX' | 'CENTER' | 'SPACE_BETWEEN'
-          gap: 0,
-          paddingTop: 0,
-          paddingBottom: 0,
-          paddingLeft: 0,
-          paddingRight: 0,
+          gap: 0, // number
+          paddingTop: 0, // number
+          paddingBottom: 0, // number
+          paddingLeft: 0, // number
+          paddingRight: 0, // number
         }
 
-        for (const item of getSplitNameList(node)) {
-          const pixelValue = nameTo.number(item);
+        for (const name of getSplitNameList(node)) {
+          const pixelValue = Number(name.replace(pattern.notNumber, ''));
 
           switch (true) {
-            case nameIs.row(item): {
+            case nameIs.row(name): {
               props.flexDirection = 'HORIZONTAL';
               cue = true;
               break;
             }
-            case nameIs.column(item): {
+            case nameIs.column(name): {
               props.flexDirection = 'VERTICAL';
               cue = true;
               break;
             }
-            case nameIs.justification(item): {
+            case nameIs.justification(name): {
               props.justifyContent = 'SPACE_BETWEEN';
               break;
             }
-            case nameIs.gap(item): {
+            case nameIs.gap(name): {
               props.gap = pixelValue;
               break;
             }
-            case nameIs.padding(item): {
+            case nameIs.padding(name): {
               props.paddingTop = pixelValue;
               props.paddingBottom = pixelValue;
               props.paddingLeft = pixelValue;
               props.paddingRight = pixelValue;
               break;
             }
-            case nameIs.paddingBlock(item): {
+            case nameIs.paddingBlock(name): {
               props.paddingTop = pixelValue;
               props.paddingBottom = pixelValue;
               break;
             }
-            case nameIs.paddingInline(item): {
+            case nameIs.paddingInline(name): {
               props.paddingLeft = pixelValue;
               props.paddingRight = pixelValue;
               break;
             }
-            case nameIs.paddingTop(item): {
+            case nameIs.paddingTop(name): {
               props.paddingTop = pixelValue;
               break;
             }
-            case nameIs.paddingBottom(item): {
+            case nameIs.paddingBottom(name): {
               props.paddingBottom = pixelValue;
               break;
             }
-            case nameIs.paddingLeft(item): {
+            case nameIs.paddingLeft(name): {
               props.paddingLeft = pixelValue;
               break;
             }
-            case nameIs.paddingRight(item): {
+            case nameIs.paddingRight(name): {
               props.paddingRight = pixelValue;
               break;
             }
             default: break;
           }
-
-          // if (nameIs.row(item)) {
-          //   props.flexDirection = 'HORIZONTAL';
-          //   cue = true;
-          // }
-          // if (nameIs.column(item)) {
-          //   props.flexDirection = 'VERTICAL';
-          //   cue = true;
-          // }
-          // if (nameIs.justification(item)) {
-          //   props.justifyContent = 'SPACE_BETWEEN';
-          // }
-          // if (nameIs.gap(item)) {
-          //   props.gap = pixelValue;
-          // }
-          // if (nameIs.padding(item) || nameIs.paddingBlock(item) || nameIs.paddingTop(item)) {
-          //   props.paddingTop = pixelValue;
-          // }
-          // if (nameIs.padding(item) || nameIs.paddingBlock(item) || nameIs.paddingBottom(item)) {
-          //   props.paddingBottom = pixelValue;
-          // }
-          // if (nameIs.padding(item) || nameIs.paddingInline(item) || nameIs.paddingLeft(item)) {
-          //   props.paddingLeft = pixelValue;
-          // }
-          // if (nameIs.padding(item) || nameIs.paddingInline(item) || nameIs.paddingRight(item)) {
-          //   props.paddingRight = pixelValue;
-          // }
         }
 
         if (cue) {
@@ -116,7 +89,8 @@ export function setAutoLayout (currentNode: SceneNode): void {
 
         // console.log(node.name + ":", props);
       }
-
     }
+  } else {
+    figma.closePlugin('Not Frame');
   }
 }
