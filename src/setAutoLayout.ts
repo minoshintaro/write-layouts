@@ -23,7 +23,7 @@ export function setAutoLayout (currentNode: SceneNode): void {
           const pixelValue = convertName.number(name);
 
           switch (true) {
-            case nameIs.row(name): {
+            case pattern.isRow(name): {
               props.flexDirection = 'HORIZONTAL';
               cue = true;
               break;

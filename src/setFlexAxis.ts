@@ -1,22 +1,17 @@
 import { getParentMode } from './getParentMode';
 
-const keys: string[] = [
-  'hug',
-  'fill'
-];
-
 export function setFlexAxis (currentNode: SceneNode, key: string): void {
   if ('layoutGrow' in currentNode && key === 'fill') {
     switch (getParentMode(currentNode)) {
-      case 'HORIZONTAL':
+      case 'HORIZONTAL': {
         currentNode.layoutGrow = 1;
-        // currentNode.primaryAxisAlignItems = 'AUTO';
         break;
-      case 'VERTICAL':
+      }
+      case 'VERTICAL': {
         currentNode.layoutAlign = 'STRETCH';
         break;
-      default:
-        break;
+      }
+      default: break;
     }
   } else if ('layoutGrow' in currentNode && key === 'hug') {
     switch (getParentMode(currentNode)) {

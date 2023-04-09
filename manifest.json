@@ -12,7 +12,7 @@
     {
       "name": "Command?",
       "key": "task",
-      "description": "Select the named layer and enter a command."
+      "description": "Type a space to see all commands."
     }
   ]
 }

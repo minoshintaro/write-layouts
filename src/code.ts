@@ -1,5 +1,3 @@
-import { logProps } from './logProps';
-import { getFilteredList } from './getFilteredList'
 import { resizeObject } from './resizeObject';
 import { setAutoLayout } from './setAutoLayout';
 import { setFlexAxis } from './setFlexAxis';
@@ -15,29 +13,36 @@ type Settings = {
 const commandCatalog: Settings = {
   main: [
     { name: 'Auto Layout', message: 'Auto layout added' },
-    { name: 'Resize Selections', message: 'Resized' },
-    { name: 'Write Over by Auto Layout', message: 'Layer name rewrited' }
+    { name: 'Overwrite with Auto Layout', message: 'Layer name rewrited' }
   ],
   sub: [
     { name: 'Resize Selections', message: 'Resized' },
     { name: 'Fill Horizontally', message: 'Fill' },
-    { name: 'Fixed Horizontally', message: 'Fixed' },
-    { name: 'Hug Vertically', message: 'Hug' }
+    // { name: 'Fixed Horizontally', message: 'Fixed' },
+    // { name: 'Hug Vertically', message: 'Hug' }
   ],
   align: [
-    { name: 'Align Center', message: 'Center' },
-    { name: 'Align Left', message: 'Left' },
-    { name: 'Align Right', message: 'Right' },
-    { name: 'Align Middle', message: 'Middle' },
-    { name: 'Align Top', message: 'Top' },
-    { name: 'Align Bottom', message: 'Bottom' },
+    { name: 'Top Left', message: 'Align Top Left' },
+    { name: 'Top Center', message: 'Align Top Center' },
+    { name: 'Top Right', message: 'Align Top Right' },
+    { name: 'Left', message: 'Align Left' },
+    { name: 'Center', message: 'Align Center' },
+    { name: 'Right', message: 'Align Right' },
+    { name: 'Bottom Left', message: 'Align Bottom Left' },
+    { name: 'Bottom Center', message: 'Align Bottom Center' },
+    { name: 'Bottom Right', message: 'Align Bottom Right' },
   ],
   get: (type) => {
     switch (type) {
       case 'main': return commandCatalog.main.map(item => item.name);
       case 'sub': return commandCatalog.sub.map(item => item.name);
       case 'align': return commandCatalog.align.map(item => item.name);
-      default: return [''];
+      default: {
+        const main = commandCatalog.get('main');
+        const sub = commandCatalog.get('sub');
+        const align = commandCatalog.get('align');
+        return main.concat(sub);
+      }
     }
   }
 };
@@ -45,17 +50,15 @@ const commandCatalog: Settings = {
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
   const getAnswerList = (key: string): string[] => {
     if (key === '') {
-      return getFilteredList(commandCatalog.get('main'), key);
+      return commandCatalog.get('main');
+    } else if (key === ' ') {
+      return commandCatalog.get('all');
     } else {
-      const checkHasKey = (target: string, key: string): boolean => {
-        return RegExp(`${key}`, 'gi').test(target);
-      };
-      switch (true) {
-        case checkHasKey(commandCatalog.get('sub').toString(), key): return getFilteredList(commandCatalog.get('sub'), key);
-        default: return getFilteredList(commandCatalog.get('main'), key);
-      }
+      const pattern = RegExp(`^${key}`, 'i');
+      return commandCatalog.get('all').filter(item => item.match(pattern));
     }
   }
+
   result.setSuggestions(getAnswerList(query));
 });
 
@@ -71,11 +74,11 @@ figma.on('run', ({ parameters }: RunEvent) => {
           break;
         case commandCatalog.main[1].name:
           message = commandCatalog.main[1].message;
-          resizeObject(node);
-          break;
-        case commandCatalog.main[2].name:
-          message = commandCatalog.main[2].message;
           setLayerName(node);
+          break;
+        case commandCatalog.sub[0].name:
+          message = commandCatalog.main[0].message;
+          resizeObject(node);
           break;
         case commandCatalog.sub[1].name:
           message = commandCatalog.sub[1].message;
@@ -85,10 +88,6 @@ figma.on('run', ({ parameters }: RunEvent) => {
           message = commandCatalog.sub[2].message;
           setFlexAxis(node, 'hug');
           break;
-        case 'dev':
-          message = 'Console log';
-          logProps(node);
-          break;
         default:
           message = 'Resizing & Auto Layout';
           resizeObject(node);
@@ -97,5 +96,6 @@ figma.on('run', ({ parameters }: RunEvent) => {
       }
     }
   }
+
   figma.closePlugin(message);
 });
