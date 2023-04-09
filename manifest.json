@@ -2,10 +2,17 @@
   "name": "Write Layouts",
   "id": "1216570153120093514",
   "api": "1.0.0",
-  "main": "code.js",
+  "main": "dist/code.js",
   "capabilities": [],
   "enableProposedApi": false,
   "editorType": [
     "figma"
+  ],
+  "parameters": [
+    {
+      "name": "Command?",
+      "key": "task",
+      "description": "Type a space to see all commands."
+    }
   ]
 }
