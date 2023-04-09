@@ -8,16 +8,18 @@ import { setLayerName } from './setLayerName';
 type Settings = {
   main: { name: string; message: string}[],
   sub: { name: string; message: string}[],
-  align: { name: string; message: string}[]
+  align: { name: string; message: string}[],
+  get: (type: string) => string[]
 }
 
 const commandCatalog: Settings = {
   main: [
-    { name: 'Auto Layout', message: 'Auto layout added'},
-    { name: 'Write Over', message: 'Layer name rewrited'}
+    { name: 'Auto Layout', message: 'Auto layout added' },
+    { name: 'Resize Selections', message: 'Resized' },
+    { name: 'Write Over by Auto Layout', message: 'Layer name rewrited' }
   ],
   sub: [
-    { name: 'Resize', message: 'Resized'},
+    { name: 'Resize Selections', message: 'Resized' },
     { name: 'Fill Horizontally', message: 'Fill' },
     { name: 'Fixed Horizontally', message: 'Fixed' },
     { name: 'Hug Vertically', message: 'Hug' }
@@ -29,29 +31,28 @@ const commandCatalog: Settings = {
     { name: 'Align Middle', message: 'Middle' },
     { name: 'Align Top', message: 'Top' },
     { name: 'Align Bottom', message: 'Bottom' },
-  ]
-};
-
-const getCommandList = (key: string): string[] => {
-  switch (key) {
-    case 'main': return commandCatalog.main.map(item => item.name);
-    case 'sub': return commandCatalog.sub.map(item => item.name);
-    case 'align': return commandCatalog.align.map(item => item.name);
-    default: return [''];
+  ],
+  get: (type) => {
+    switch (type) {
+      case 'main': return commandCatalog.main.map(item => item.name);
+      case 'sub': return commandCatalog.sub.map(item => item.name);
+      case 'align': return commandCatalog.align.map(item => item.name);
+      default: return [''];
+    }
   }
-}
+};
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
   const getAnswerList = (key: string): string[] => {
     if (key === '') {
-      return getFilteredList(getCommandList('main'), key);
+      return getFilteredList(commandCatalog.get('main'), key);
     } else {
       const checkHasKey = (target: string, key: string): boolean => {
         return RegExp(`${key}`, 'gi').test(target);
       };
       switch (true) {
-        case checkHasKey(getCommandList('sub').toString(), key): return getFilteredList(getCommandList('sub'), key);
-        default: return getFilteredList(getCommandList('main'), key);
+        case checkHasKey(commandCatalog.get('sub').toString(), key): return getFilteredList(commandCatalog.get('sub'), key);
+        default: return getFilteredList(commandCatalog.get('main'), key);
       }
     }
   }
@@ -70,11 +71,11 @@ figma.on('run', ({ parameters }: RunEvent) => {
           break;
         case commandCatalog.main[1].name:
           message = commandCatalog.main[1].message;
-          setLayerName(node);
-          break;
-        case commandCatalog.sub[0].name:
-          message = commandCatalog.sub[0].message;
           resizeObject(node);
+          break;
+        case commandCatalog.main[2].name:
+          message = commandCatalog.main[2].message;
+          setLayerName(node);
           break;
         case commandCatalog.sub[1].name:
           message = commandCatalog.sub[1].message;

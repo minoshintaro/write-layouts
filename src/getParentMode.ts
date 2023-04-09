@@ -1,3 +1,7 @@
 export function getParentMode(node: SceneNode): string {
-  return node.parent && (node.parent.type === 'FRAME' || node.parent.type === 'COMPONENT') ? node.parent.layoutMode : 'NONE';
+  if (node.parent && 'layoutMode' in node.parent) {
+    return node.parent.layoutMode;
+  } else {
+    return 'NONE';
+  }
 }

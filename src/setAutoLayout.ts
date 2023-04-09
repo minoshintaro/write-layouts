@@ -1,3 +1,4 @@
+import { convertName } from './convertName';
 import { nameIs } from './nameIs';
 import { getFrameNodeList } from './getFrameNodeList';
 import { getSplitNameList } from './getSplitNameList';
@@ -19,7 +20,7 @@ export function setAutoLayout (currentNode: SceneNode): void {
         }
 
         for (const name of getSplitNameList(node)) {
-          const pixelValue = Number(name.replace(pattern.notNumber, ''));
+          const pixelValue = convertName.number(name);
 
           switch (true) {
             case nameIs.row(name): {

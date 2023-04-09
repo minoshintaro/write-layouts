@@ -1,68 +1,82 @@
 import { nameIs } from './nameIs';
-import { nameTo } from './nameTo';
+import { convertName } from './convertName';
+import { getSplitNameList } from './getSplitNameList';
 import { getParentMode } from './getParentMode';
 
-export function resizeObject (node: SceneNode): void {
-  if (node.type === 'FRAME' || node.type === 'RECTANGLE') {
-    let isFillItem = false;
-
-
-
-
-
-    let cue = {
-      w: false,
-      h: false
-    };
+export function resizeObject (currentNode: SceneNode): void {
+  if (currentNode.type === 'FRAME' || currentNode.type === 'RECTANGLE') {
     let props = {
-      isFillItem: false,
-      justifySelf: node.layoutGrow, // Main axis: 0 | 1
-      alignSelf: node.layoutAlign, // Sub axis: 'MIN' | 'CENTER' | 'MAX' | 'STRETCH' | 'INHERIT'
-      width: node.width,
-      height: node.height,
+      mode: getParentMode(currentNode), // Container: 'HORIZONTAL' | 'VERTICAL' | 'NONE'
+      justifySelf: currentNode.layoutGrow, // Main axis: 0 | 1
+      alignSelf: currentNode.layoutAlign, // Sub axis: 'MIN' | 'CENTER' | 'MAX' | 'STRETCH' | 'INHERIT'
+      width: currentNode.width, // number
+      height: currentNode.height // number
+    };
+    let size = {
+      width: 0,
+      height: 0,
       ratio: 0
     };
 
-    switch (getParentMode(node)) {
-      case 'HORITONTAL': {}
-      case 'VERTICAL': {}
-      default: break;
-    }
-
-    if (getParentMode(node) === 'HORITONTAL') {
-      props.isFillItem = (node.layoutGrow === 1) ? true : false;
-    } else if (getParentMode(node) === 'VERTICAL') {
-      props.isFillItem = (node.layoutAlign === 'STRETCH') ? true : false;
-    }
-
-    for (const item of nameTo.array(node.name)) {
-      if (nameIs.width(item)) {
-        props.width = nameTo.number(item);
-        cue.w = true;
-      }
-      if (nameIs.height(item)) {
-        props.height = nameTo.number(item);
-        cue.h = true;
-      }
-      if (nameIs.aspectRatio(item)) {
-        props.ratio = nameTo.decimal(item);
+    for (const name of getSplitNameList(currentNode)) {
+      switch (true) {
+        case nameIs.width(name): {
+          size.width = convertName.number(name);
+          break;
+        }
+        case nameIs.height(name): {
+          size.height = convertName.number(name);
+          break;
+        }
+        case nameIs.aspectRatio(name): {
+          size.ratio = convertName.decimal(name);
+          break;
+        }
+        default: break;
       }
     }
 
-    if (props.ratio && !cue.h) {
-      const value = Math.round(props.width * props.ratio);
-      props.height = (value >= 1) ? value : 1;
-    } else if (props.ratio && cue.h && !cue.w) {
-      const value = Math.round(props.height / props.ratio);
-      props.width = (value >= 1) ? value : 1;
+    if ((props.mode === 'HORIZONTAL' && props.justifySelf === 1) || (props.mode === 'VERTICAL' && props.alignSelf === 'STRETCH')) {
+      switch (true) {
+        case size.height !== 0: { // 高さ名がある場合、
+          size.width = props.width;
+          break;
+        }
+        default: { // 高さ名がない場合、
+          const value = size.ratio ? Math.round(props.width * size.ratio) : props.height;
+          size.width = props.width;
+          size.height = value >= 1 ? value : 1;
+          break;
+        }
+      }
     }
 
-    if (!props.isFillItem) {
-      node.resizeWithoutConstraints(props.width, props.height);
-    } else {
-      figma.closePlugin('Please Change Fill to Fixed');
+    if (size.width) { // 幅名がある場合、
+      switch (true) {
+        case size.height === 0: { // 高さ名がない場合、高さを設定する
+          const value = size.ratio ? Math.round(size.width * size.ratio) : props.height;
+          size.height = value >= 1 ? value : 1;
+          break;
+        }
+        default: break; // 高さ名がある場合、両方揃っているので続行
+      }
+    } else { // 幅名がない場合、
+      switch (true) {
+        case size.height !== 0: { // 高さ名がある場合、幅を設定する
+          const value = size.ratio ? Math.round(size.height * size.ratio) : props.width;
+          size.width = value >= 1 ? value : 1;
+          break;
+        }
+        default: { // 高さ名もない場合、現サイズを踏襲
+          const value = size.ratio ? Math.round(props.width * size.ratio) : props.height;
+          size.width = props.width;
+          size.height = value >= 1 ? value : 1;
+          break;
+        }
+      }
     }
 
-    // console.log(node.name + ':', props);
+    currentNode.resizeWithoutConstraints(size.width, size.height);
+    // console.log(currentNode.name + ':', size, props);
   }
 }
