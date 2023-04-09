@@ -1,11 +1,11 @@
-import { nameTo } from './nameTo';
+import { getFrameNodeList } from './getFrameNodeList';
+import { getSplitNameList } from './getSplitNameList';
+import { pattern } from './pattern';
 
-export function setLayerName(currentNode: SceneNode): void {
+export function setLayerName (currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME') {
-    const subNodeList = currentNode.findAllWithCriteria({ types: ['FRAME'] });
-
-    for (const node of Array(currentNode).concat(subNodeList)) {
-      if (node.layoutMode !== 'NONE') {
+    for (const node of getFrameNodeList(currentNode)) {
+      if ('layoutMode' in node && node.layoutMode !== 'NONE') {
         let props = {
           flexDirection: node.layoutMode,
           justifyContent: node.primaryAxisAlignItems,
@@ -16,21 +16,7 @@ export function setLayerName(currentNode: SceneNode): void {
           paddingRight: node.paddingRight
         }
 
-        function getNameList(node: SceneNode): string[] {
-          const isFrame = /^Frame [0-9]{1,5}/;
-          const notSpacing = /^(?!g-|p-|px-|py-|pt-|pb-|pl-|pr-)/g;
-
-          const nameList = nameTo.array(node.name.replace(isFrame, '').trim());
-          return nameList.filter(item => {
-            switch (item) {
-              case 'row': break;
-              case 'col': break;
-              default: return item.match(notSpacing);
-            }
-          });
-        }
-
-        function setGapName(g: number, j:string): string {
+        function setGapName (g: number, j:string): string {
           switch (true) {
             case j === 'SPACE_BETWEEN': return 'g-auto';
             case g !== 0 : return 'g-' + g;
@@ -38,7 +24,7 @@ export function setLayerName(currentNode: SceneNode): void {
           }
         }
 
-        function setPaddingName(t: number, b: number, l: number, r: number): string {
+        function setPaddingName (t: number, b: number, l: number, r: number): string {
           const x = (l !== 0) && (l === r) ? l : 0;
           const y = (t !== 0) && (t === b) ? t : 0;
           const p = (x !== 0) && (x === y) ? x : 0;
@@ -89,14 +75,23 @@ export function setLayerName(currentNode: SceneNode): void {
           }
         }
 
-        const d = (props.flexDirection === 'HORIZONTAL') ? 'row' : 'col';
-        const g = setGapName(props.gap, props.justifyContent);
-        const p = setPaddingName(props.paddingTop, props.paddingBottom, props.paddingLeft, props.paddingRight);
+        const direction = (props.flexDirection === 'HORIZONTAL') ? 'row' : 'col';
+        const gap = setGapName(props.gap, props.justifyContent);
+        const padding = setPaddingName(props.paddingTop, props.paddingBottom, props.paddingLeft, props.paddingRight);
 
-        const result = getNameList(node).concat(Array(d, g, p)).filter(item => item.match(/^(?!NONE$)/)).join(' ');
+        const currentNames = getSplitNameList(node).filter(item => {
+          switch (item) {
+            case 'row': break;
+            case 'col': break;
+            default: return item.match(pattern.notSpacing);
+          }
+        });
+        const nameList = currentNames.concat(Array(direction, gap, padding));
 
-        node.name = result;
+        node.name = nameList.filter(item => item.match(pattern.notNone)).join(' ');
       }
     }
+  } else {
+    figma.closePlugin('Not Auto Layout');
   }
 }

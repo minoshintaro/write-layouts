@@ -2,8 +2,14 @@ import { nameIs } from './nameIs';
 import { nameTo } from './nameTo';
 import { getParentMode } from './getParentMode';
 
-export function resizeObject(node: SceneNode): void {
+export function resizeObject (node: SceneNode): void {
   if (node.type === 'FRAME' || node.type === 'RECTANGLE') {
+    let isFillItem = false;
+
+
+
+
+
     let cue = {
       w: false,
       h: false
@@ -16,6 +22,12 @@ export function resizeObject(node: SceneNode): void {
       height: node.height,
       ratio: 0
     };
+
+    switch (getParentMode(node)) {
+      case 'HORITONTAL': {}
+      case 'VERTICAL': {}
+      default: break;
+    }
 
     if (getParentMode(node) === 'HORITONTAL') {
       props.isFillItem = (node.layoutGrow === 1) ? true : false;

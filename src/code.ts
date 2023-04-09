@@ -1,4 +1,5 @@
 import { logProps } from './logProps';
+import { getFilteredList } from './getFilteredList'
 import { resizeObject } from './resizeObject';
 import { setAutoLayout } from './setAutoLayout';
 import { setFlexAxis } from './setFlexAxis';
@@ -6,57 +7,55 @@ import { setLayerName } from './setLayerName';
 
 type Settings = {
   main: { name: string; message: string}[],
-  sub: { name: string; message: string}[]
+  sub: { name: string; message: string}[],
+  align: { name: string; message: string}[]
 }
 
 const commandCatalog: Settings = {
   main: [
-    { name: 'Auto Layout by Layer Name', message: 'Auto layout added'},
-    { name: 'Write Over by Auto Layout', message: 'Layer name rewrited'}
+    { name: 'Auto Layout', message: 'Auto layout added'},
+    { name: 'Write Over', message: 'Layer name rewrited'}
   ],
   sub: [
     { name: 'Resize', message: 'Resized'},
     { name: 'Fill Horizontally', message: 'Fill' },
     { name: 'Fixed Horizontally', message: 'Fixed' },
-    { name: 'Hug Vertically', message: 'Hug' },
-    // { name: 'Align Center', message: 'Center' },
-    // { name: 'Align Left', message: 'Left' },
-    // { name: 'Align Right', message: 'Right' },
-    // { name: 'Align Middle', message: 'Middle' },
-    // { name: 'Align Top', message: 'Top' },
-    // { name: 'Align Bottom', message: 'Bottom' },
+    { name: 'Hug Vertically', message: 'Hug' }
+  ],
+  align: [
+    { name: 'Align Center', message: 'Center' },
+    { name: 'Align Left', message: 'Left' },
+    { name: 'Align Right', message: 'Right' },
+    { name: 'Align Middle', message: 'Middle' },
+    { name: 'Align Top', message: 'Top' },
+    { name: 'Align Bottom', message: 'Bottom' },
   ]
 };
 
-function getMatchedList(target: string[], key: string): string[] {
-  const k = key.toLowerCase();
-  return target.filter(item => item.toLowerCase().includes(k));
+const getCommandList = (key: string): string[] => {
+  switch (key) {
+    case 'main': return commandCatalog.main.map(item => item.name);
+    case 'sub': return commandCatalog.sub.map(item => item.name);
+    case 'align': return commandCatalog.align.map(item => item.name);
+    default: return [''];
+  }
 }
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
-  function getCommandList(key: string): string[] {
-    const mainList = commandCatalog.main.map(item => item.name);
-
-    function checkSubList(key: string): boolean {
-      // RegExp.test(String) // => true | false
-      const list = commandCatalog.sub.map(item => item.name);
-      const pattern = new RegExp(`${key}`, 'gi')
-      return pattern.test(list.toString());
-    }
-
-    switch (true) {
-      case key === '':
-        return getMatchedList(mainList, key);
-      case checkSubList(key):
-        const subList = commandCatalog.sub.map(item => item.name);
-        console.log(subList.toString());
-        return getMatchedList(subList, key);
-      default:
-        return getMatchedList(mainList, key);
+  const getAnswerList = (key: string): string[] => {
+    if (key === '') {
+      return getFilteredList(getCommandList('main'), key);
+    } else {
+      const checkHasKey = (target: string, key: string): boolean => {
+        return RegExp(`${key}`, 'gi').test(target);
+      };
+      switch (true) {
+        case checkHasKey(getCommandList('sub').toString(), key): return getFilteredList(getCommandList('sub'), key);
+        default: return getFilteredList(getCommandList('main'), key);
+      }
     }
   }
-
-  result.setSuggestions(getCommandList(query));
+  result.setSuggestions(getAnswerList(query));
 });
 
 figma.on('run', ({ parameters }: RunEvent) => {

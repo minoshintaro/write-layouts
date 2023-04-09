@@ -5,7 +5,7 @@ const keys: string[] = [
   'fill'
 ];
 
-export function setFlexAxis(currentNode: SceneNode, key: string): void {
+export function setFlexAxis (currentNode: SceneNode, key: string): void {
   if ('layoutGrow' in currentNode && key === 'fill') {
     switch (getParentMode(currentNode)) {
       case 'HORIZONTAL':
