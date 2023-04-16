@@ -47,14 +47,14 @@ const commandCatalog: Settings = {
 };
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
-  const getAnswerList = (key: string): string[] => {
-    if (key === '') {
-      return commandCatalog.get('main');
-    } else if (key === ' ') {
-      return commandCatalog.get('all');
-    } else {
-      const pattern = RegExp(`^${key.trim()}`, 'i');
-      return commandCatalog.get('all').filter(item => item.match(pattern));
+  function getAnswerList (key: string): string[] {
+    switch (key) {
+      case '': return commandCatalog.get('main');
+      case ' ': return commandCatalog.get('all');
+      default: {
+        const pattern = RegExp(`^${key.trim()}`, 'i');
+        return commandCatalog.get('all').filter(item => item.match(pattern));
+      }
     }
   }
 
@@ -65,39 +65,37 @@ figma.on('run', ({ parameters }: RunEvent) => {
   let message: string = 'Please select layers';
 
   for (const node of figma.currentPage.selection) {
-    if (parameters) {
-      switch (parameters.task) {
-        case commandCatalog.main[0].name: {
-          message = commandCatalog.main[0].message;
-          commandCatalog.main[0].task(node);
-          break;
-        }
-        case commandCatalog.main[1].name: {
-          message = commandCatalog.main[1].message;
-          commandCatalog.main[1].task(node);
-          break;
-        }
-        case commandCatalog.sub[0].name: {
-          message = commandCatalog.sub[0].message;
-          commandCatalog.sub[0].task(node);
-          break;
-        }
-        case commandCatalog.sub[1].name: {
-          message = commandCatalog.sub[1].message;
-          commandCatalog.sub[1].task(node);
-          break;
-        }
-        case commandCatalog.sub[2].name: {
-          message = commandCatalog.sub[2].message;
-          commandCatalog.sub[2].task(node);
-          break;
-        }
-        default: {
-          message = 'Resizing & Auto Layout';
-          resizeObject(node);
-          setAutoLayout(node);
-          break;
-        }
+    switch (parameters && parameters.task) {
+      case commandCatalog.main[0].name: {
+        message = commandCatalog.main[0].message;
+        commandCatalog.main[0].task(node);
+        break;
+      }
+      case commandCatalog.main[1].name: {
+        message = commandCatalog.main[1].message;
+        commandCatalog.main[1].task(node);
+        break;
+      }
+      case commandCatalog.sub[0].name: {
+        message = commandCatalog.sub[0].message;
+        commandCatalog.sub[0].task(node);
+        break;
+      }
+      case commandCatalog.sub[1].name: {
+        message = commandCatalog.sub[1].message;
+        commandCatalog.sub[1].task(node);
+        break;
+      }
+      case commandCatalog.sub[2].name: {
+        message = commandCatalog.sub[2].message;
+        commandCatalog.sub[2].task(node);
+        break;
+      }
+      default: {
+        message = 'Resizing & Auto Layout';
+        resizeObject(node);
+        setAutoLayout(node);
+        break;
       }
     }
   }

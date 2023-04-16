@@ -1,101 +1,82 @@
+import { getParentMode } from "./getParentMode";
 
 export function setFlexAxis (currentNode: SceneNode, key: string): void {
   let props = {
-    parentLayout: (currentNode.parent && 'layoutMode' in currentNode.parent) ? currentNode.parent.layoutMode : 'NONE',
+    parentLayout: getParentMode(currentNode),
     autoLayout: ('layoutMode' in currentNode) ? currentNode.layoutMode : 'NONE', // 'NONE' | 'HORIZONTAL' | 'VERTICAL'
-    mainAxis: ('layoutMode' in currentNode) ? currentNode.primaryAxisSizingMode : 'NONE', // 'FIXED' | 'AUTO'
-    subAxis: ('layoutMode' in currentNode) ? currentNode.counterAxisSizingMode : 'NONE', // 'FIXED' | 'AUTO'
-    mainFlex: ('layoutGrow' in currentNode) ? currentNode.layoutGrow : 0, // 0 | 1
-    subFlex: ('layoutAlign' in currentNode) ? currentNode.layoutAlign : 'INHERIT' // 'STRETCH' | 'INHERIT'
   };
 
-  // 自分がAutoLayout かつ 親がAutoLayout
-  if (currentNode.type === 'FRAME' && props.parentLayout !== 'NONE' && props.autoLayout !== 'NONE') {
-    switch (props.parentLayout === 'HORIZONTAL' && props.autoLayout) {
-      case 'HORIZONTAL': {
-        if (key === 'fill') {
-          currentNode.primaryAxisSizingMode = 'FIXED'; // 親が → 自分が → 自分は主軸
-          currentNode.layoutGrow = 1; // 親が → 自分が → 子は主軸
-          break;
-        }
-        if (key === 'hug') {
-          currentNode.counterAxisSizingMode = 'AUTO'; // 親が → 自分が →
-          currentNode.layoutAlign = 'INHERIT'; // 親が → 自分が → 子は副軸
-          break;
-        }
-      }
-      case 'VERTICAL': {
-        if (key === 'fill') {
-          currentNode.counterAxisSizingMode = 'FIXED';
-          currentNode.layoutAlign = 'STRETCH';
-          break;
-        }
-        if (key === 'hug') {
-          currentNode.primaryAxisSizingMode = 'AUTO';
-          currentNode.layoutGrow = 0;
-          break;
-        }
-      }
-      default: break;
-    }
-    switch (props.parentLayout === 'VERTICAL' && props.autoLayout) {
-      case 'HORIZONTAL': {
-        if (key === 'fill') {
-          currentNode.primaryAxisSizingMode = 'FIXED';
-          currentNode.layoutAlign = 'STRETCH';
-          break;
-        }
-        if (key === 'hug') {
-          currentNode.counterAxisSizingMode = 'AUTO';
-          currentNode.layoutGrow = 0;
-          break;
-        }
-      }
-      case 'VERTICAL': {
-
-      }
-      default: break;
-
-    }
-
-
-    switch (props.parentLayout) {
-      case 'HORIZONTAL': {
-        if (key === 'fill' && props.autoLayout === 'HORIZONTAL') {
-          switch (currentNode.type) {
-            case 'FRAME': {
-
+  switch (key) {
+    case 'fill': {
+      // ※ fill にするには、AutoLayoutの親が必要
+      if (props.parentLayout !== 'NONE') {
+        // 自分が AutoLayout の場合、軸サイズを設定する
+        if (currentNode.type === 'FRAME') {
+          switch (props.autoLayout) {
+            case 'HORIZONTAL': {
+              currentNode.primaryAxisSizingMode = 'FIXED';
               break;
             }
+            case 'VERTICAL': {
+              currentNode.counterAxisSizingMode = 'FIXED'
+              break;
+            }
+            default: break;
           }
-
-          // → 主軸が Row, mainFlex 1, mainAxis FIXED
-
-
-
         }
-        if (key === 'hug' && props.autoLayout === 'HORIZONTAL') {
-
+        if ('layoutGrow' in currentNode) {
+          switch (props.parentLayout) {
+            case 'HORIZONTAL': {
+              currentNode.layoutGrow = 1; // 親の主軸
+              break;
+            }
+            case 'VERTICAL': {
+              currentNode.layoutAlign = 'STRETCH'; // 親の副軸
+              break;
+            }
+            default: break;
+          }
         }
+      } else {
+        figma.closePlugin('Can Not Fill');
       }
+      break;
     }
-  }
-  // 自分がAutoLayout かつ 親が非AutoLayout
-  if (props.autoLayout !== 'NONE' && props.parentLayout === 'NONE') {}
-  // 自分が非AutoLayout かつ 親がAutoLayout
-  if (props.autoLayout === 'NONE' && props.parentLayout !== 'NONE') {}
-
-  if (key === 'fill') {
-    switch (currentNode.type) {
-      case 'FRAME': {
-
-        console.log('test:', props);
-        break;
+    case 'hug': {
+      // Rectangleはhugできない
+      if (currentNode.type !== 'RECTANGLE') {
+        if (currentNode.type === 'FRAME') {
+          switch (props.autoLayout) {
+            case 'HORIZONTAL': {
+              currentNode.counterAxisSizingMode = 'AUTO';
+              break;
+            }
+            case 'VERTICAL': {
+              currentNode.primaryAxisSizingMode = 'AUTO'
+              break;
+            }
+            default: break;
+          }
+        }
+        if ('layoutGrow' in currentNode) {
+          switch (props.parentLayout) {
+            case 'HORIZONTAL': {
+              currentNode.layoutAlign = 'INHERIT'; // 親の副軸
+              break;
+            }
+            case 'VERTICAL': {
+              currentNode.layoutGrow = 0; // 親の主軸
+              break;
+            }
+            default: break;
+          }
+        }
+      } else {
+        figma.closePlugin('Can Not Hug');
       }
-      default: return;
+      break;
     }
-  } else if (key === 'hug') {
-
+    default: break;
   }
 }
 
