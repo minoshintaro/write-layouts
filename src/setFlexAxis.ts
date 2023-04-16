@@ -1,54 +1,101 @@
-import { getParentMode } from './getParentMode';
 
 export function setFlexAxis (currentNode: SceneNode, key: string): void {
-  if ('layoutGrow' in currentNode && key === 'fill') {
-    switch (getParentMode(currentNode)) {
+  let props = {
+    parentLayout: (currentNode.parent && 'layoutMode' in currentNode.parent) ? currentNode.parent.layoutMode : 'NONE',
+    autoLayout: ('layoutMode' in currentNode) ? currentNode.layoutMode : 'NONE', // 'NONE' | 'HORIZONTAL' | 'VERTICAL'
+    mainAxis: ('layoutMode' in currentNode) ? currentNode.primaryAxisSizingMode : 'NONE', // 'FIXED' | 'AUTO'
+    subAxis: ('layoutMode' in currentNode) ? currentNode.counterAxisSizingMode : 'NONE', // 'FIXED' | 'AUTO'
+    mainFlex: ('layoutGrow' in currentNode) ? currentNode.layoutGrow : 0, // 0 | 1
+    subFlex: ('layoutAlign' in currentNode) ? currentNode.layoutAlign : 'INHERIT' // 'STRETCH' | 'INHERIT'
+  };
+
+  // 自分がAutoLayout かつ 親がAutoLayout
+  if (currentNode.type === 'FRAME' && props.parentLayout !== 'NONE' && props.autoLayout !== 'NONE') {
+    switch (props.parentLayout === 'HORIZONTAL' && props.autoLayout) {
       case 'HORIZONTAL': {
-        currentNode.layoutGrow = 1;
-        break;
+        if (key === 'fill') {
+          currentNode.primaryAxisSizingMode = 'FIXED'; // 親が → 自分が → 自分は主軸
+          currentNode.layoutGrow = 1; // 親が → 自分が → 子は主軸
+          break;
+        }
+        if (key === 'hug') {
+          currentNode.counterAxisSizingMode = 'AUTO'; // 親が → 自分が →
+          currentNode.layoutAlign = 'INHERIT'; // 親が → 自分が → 子は副軸
+          break;
+        }
       }
       case 'VERTICAL': {
-        currentNode.layoutAlign = 'STRETCH';
-        break;
+        if (key === 'fill') {
+          currentNode.counterAxisSizingMode = 'FIXED';
+          currentNode.layoutAlign = 'STRETCH';
+          break;
+        }
+        if (key === 'hug') {
+          currentNode.primaryAxisSizingMode = 'AUTO';
+          currentNode.layoutGrow = 0;
+          break;
+        }
       }
       default: break;
     }
-  } else if ('layoutGrow' in currentNode && key === 'hug') {
-    switch (getParentMode(currentNode)) {
-      case 'HORIZONTAL':
-        currentNode.layoutGrow = 0;
-        break;
-      case 'VERTICAL':
-        currentNode.layoutAlign = 'INHERIT';
-        break;
-      default:
-        break;
+    switch (props.parentLayout === 'VERTICAL' && props.autoLayout) {
+      case 'HORIZONTAL': {
+        if (key === 'fill') {
+          currentNode.primaryAxisSizingMode = 'FIXED';
+          currentNode.layoutAlign = 'STRETCH';
+          break;
+        }
+        if (key === 'hug') {
+          currentNode.counterAxisSizingMode = 'AUTO';
+          currentNode.layoutGrow = 0;
+          break;
+        }
+      }
+      case 'VERTICAL': {
+
+      }
+      default: break;
+
     }
-  }
-}
 
-export function setFlexAxisToItem(currentNode: SceneNode): void {
-  if ('layoutMode' in currentNode) { // ComponentNode | ComponentSetNode | FrameNode | InstanceNode
-    const childNodeList = currentNode.findChildren(item =>
-      item.type === 'FRAME' ||
-      item.type === 'TEXT' ||
-      item.type === 'RECTANGLE' ||
-      item.type === 'INSTANCE'
-    );
 
-    for (const node of childNodeList) {
-      if ('layoutGrow' in node) {
-        switch (currentNode.layoutMode) {
-          case 'HORIZONTAL':
-            node.layoutGrow = 1;
-            break;
-          case 'VERTICAL':
-            node.layoutAlign = 'STRETCH';
-            break;
-          default:
-            break;
+    switch (props.parentLayout) {
+      case 'HORIZONTAL': {
+        if (key === 'fill' && props.autoLayout === 'HORIZONTAL') {
+          switch (currentNode.type) {
+            case 'FRAME': {
+
+              break;
+            }
+          }
+
+          // → 主軸が Row, mainFlex 1, mainAxis FIXED
+
+
+
+        }
+        if (key === 'hug' && props.autoLayout === 'HORIZONTAL') {
+
         }
       }
     }
   }
+  // 自分がAutoLayout かつ 親が非AutoLayout
+  if (props.autoLayout !== 'NONE' && props.parentLayout === 'NONE') {}
+  // 自分が非AutoLayout かつ 親がAutoLayout
+  if (props.autoLayout === 'NONE' && props.parentLayout !== 'NONE') {}
+
+  if (key === 'fill') {
+    switch (currentNode.type) {
+      case 'FRAME': {
+
+        console.log('test:', props);
+        break;
+      }
+      default: return;
+    }
+  } else if (key === 'hug') {
+
+  }
 }
+

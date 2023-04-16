@@ -7,7 +7,8 @@ export function getFrameNodeList (node: SceneNode): SceneNode[] {
   }
 }
 
-// findAllWithCriteria Supported On:
+// # findAllWithCriteria
+// ## Supported On:
 // BooleanOperationNode
 // ComponentNode
 // ComponentSetNode

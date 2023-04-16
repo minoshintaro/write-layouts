@@ -16,7 +16,7 @@ export function setLayerName (currentNode: SceneNode): void {
           paddingRight: node.paddingRight
         }
 
-        function setGapName (g: number, j:string): string {
+        function setGapName (g: number, j: string): string {
           switch (true) {
             case j === 'SPACE_BETWEEN': return 'g-auto';
             case g !== 0 : return 'g-' + g;
@@ -31,18 +31,20 @@ export function setLayerName (currentNode: SceneNode): void {
 
           if (p) {
             return 'p-' + p;
+          } else if (x && y) {
+            return 'px-' + x + ' py-' + y;
           } else if (x) {
             switch (true) {
               case t !== 0 && b !==0: return 'px-' + x + ' pt-' + t + ' pb-' + b;
-              case t !== 0 && b ==0: return 'px-' + x + ' pt-' + t;
-              case t == 0 && b !==0: return 'px-' + x + ' pb-' + b;
+              case t !== 0 && b ===0: return 'px-' + x + ' pt-' + t;
+              case t === 0 && b !==0: return 'px-' + x + ' pb-' + b;
               default: return 'px-' + x;
             }
           } else if (y) {
             switch (true) {
               case l !== 0 && r !==0: return 'py-' + y + ' pl-' + l + ' pr-' + r;
-              case l !== 0 && r ==0: return 'py-' + y + ' pl-' + l;
-              case l == 0 && r !==0: return 'py-' + y + ' pr-' + r;
+              case l !== 0 && r ===0: return 'py-' + y + ' pl-' + l;
+              case l === 0 && r !==0: return 'py-' + y + ' pr-' + r;
               default: return 'py-' + y;
             }
           } else if (t) {

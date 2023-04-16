@@ -4,22 +4,21 @@ import { setFlexAxis } from './setFlexAxis';
 import { setLayerName } from './setLayerName';
 
 type Settings = {
-  main: { name: string; message: string}[],
-  sub: { name: string; message: string}[],
-  align: { name: string; message: string}[],
+  main: { name: string; message: string; task: (node: SceneNode) => void }[],
+  sub: { name: string; message: string; task: (node: SceneNode) => void }[],
+  align: { name: string; message: string; }[],
   get: (type: string) => string[]
 }
 
 const commandCatalog: Settings = {
   main: [
-    { name: 'Auto Layout', message: 'Auto layout added' },
-    { name: 'Overwrite with Auto Layout', message: 'Layer name rewrited' }
+    { name: 'Auto Layout', message: 'Auto layout added', task: (node) => setAutoLayout(node) },
+    { name: 'Overwrite with Auto Layout', message: 'Layer name rewrited', task: (node) => setLayerName(node) }
   ],
   sub: [
-    { name: 'Resize Selections', message: 'Resized' },
-    { name: 'Fill Horizontally', message: 'Fill' },
-    // { name: 'Fixed Horizontally', message: 'Fixed' },
-    // { name: 'Hug Vertically', message: 'Hug' }
+    { name: 'Resize Selections', message: 'Resized', task: (node) => resizeObject(node) },
+    { name: 'Fill Horizontally', message: 'Fill', task: (node) => setFlexAxis(node, 'fill') },
+    { name: 'Hug Vertically', message: 'Hug', task: (node) => setFlexAxis(node, 'hug') }
   ],
   align: [
     { name: 'Top Left', message: 'Align Top Left' },
@@ -54,7 +53,7 @@ figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
     } else if (key === ' ') {
       return commandCatalog.get('all');
     } else {
-      const pattern = RegExp(`^${key}`, 'i');
+      const pattern = RegExp(`^${key.trim()}`, 'i');
       return commandCatalog.get('all').filter(item => item.match(pattern));
     }
   }
@@ -68,31 +67,37 @@ figma.on('run', ({ parameters }: RunEvent) => {
   for (const node of figma.currentPage.selection) {
     if (parameters) {
       switch (parameters.task) {
-        case commandCatalog.main[0].name:
+        case commandCatalog.main[0].name: {
           message = commandCatalog.main[0].message;
-          setAutoLayout(node);
+          commandCatalog.main[0].task(node);
           break;
-        case commandCatalog.main[1].name:
+        }
+        case commandCatalog.main[1].name: {
           message = commandCatalog.main[1].message;
-          setLayerName(node);
+          commandCatalog.main[1].task(node);
           break;
-        case commandCatalog.sub[0].name:
-          message = commandCatalog.main[0].message;
-          resizeObject(node);
+        }
+        case commandCatalog.sub[0].name: {
+          message = commandCatalog.sub[0].message;
+          commandCatalog.sub[0].task(node);
           break;
-        case commandCatalog.sub[1].name:
+        }
+        case commandCatalog.sub[1].name: {
           message = commandCatalog.sub[1].message;
-          setFlexAxis(node, 'fill');
+          commandCatalog.sub[1].task(node);
           break;
-        case commandCatalog.sub[2].name:
+        }
+        case commandCatalog.sub[2].name: {
           message = commandCatalog.sub[2].message;
-          setFlexAxis(node, 'hug');
+          commandCatalog.sub[2].task(node);
           break;
-        default:
+        }
+        default: {
           message = 'Resizing & Auto Layout';
           resizeObject(node);
           setAutoLayout(node);
           break;
+        }
       }
     }
   }

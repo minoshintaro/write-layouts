@@ -88,7 +88,7 @@ export function setAutoLayout (currentNode: SceneNode): void {
           node.paddingRight = props.paddingRight;
         }
 
-        // console.log(node.name + ":", props);
+        console.log(node.name + ":", props);
       }
     }
   } else {
