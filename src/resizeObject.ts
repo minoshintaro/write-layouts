@@ -1,5 +1,5 @@
 import { nameIs } from './nameIs';
-import { convertName } from './convertName';
+import { convertNameTo } from './convertNameTo';
 import { getSplitNameList } from './getSplitNameList';
 import { getParentMode } from './getParentMode';
 
@@ -21,15 +21,15 @@ export function resizeObject (currentNode: SceneNode): void {
     for (const name of getSplitNameList(currentNode)) {
       switch (true) {
         case nameIs.width(name): {
-          size.width = convertName.number(name);
+          size.width = convertNameTo.number(name);
           break;
         }
         case nameIs.height(name): {
-          size.height = convertName.number(name);
+          size.height = convertNameTo.number(name);
           break;
         }
         case nameIs.aspectRatio(name): {
-          size.ratio = convertName.decimal(name);
+          size.ratio = convertNameTo.decimal(name);
           break;
         }
         default: break;

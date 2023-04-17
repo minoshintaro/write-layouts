@@ -1,4 +1,4 @@
-import { convertName } from './convertName';
+import { convertNameTo } from './convertNameTo';
 import { nameIs } from './nameIs';
 import { getFrameNodeList } from './getFrameNodeList';
 import { getSplitNameList } from './getSplitNameList';
@@ -9,7 +9,7 @@ export function setAutoLayout (currentNode: SceneNode): void {
     if ('layoutMode' in node) {
       let cue = false;
       let props = {
-        flexDirection: node.layoutMode, // 'NONE' | 'HORIZONTAL' | 'VERTICAL'
+        autoLayout: node.layoutMode, // 'NONE' | 'HORIZONTAL' | 'VERTICAL'
         justifyContent: node.primaryAxisAlignItems, // 'MIN' | 'MAX' | 'CENTER' | 'SPACE_BETWEEN'
         gap: 0, // number
         paddingTop: 0, // number
@@ -19,16 +19,16 @@ export function setAutoLayout (currentNode: SceneNode): void {
       }
 
       for (const name of getSplitNameList(node)) {
-        const pixelValue = convertName.number(name);
+        const pixelValue = convertNameTo.number(name);
 
         switch (true) {
           case pattern.isRow(name): {
-            props.flexDirection = 'HORIZONTAL';
+            props.autoLayout = 'HORIZONTAL';
             cue = true;
             break;
           }
           case pattern.isColumn(name): {
-            props.flexDirection = 'VERTICAL';
+            props.autoLayout = 'VERTICAL';
             cue = true;
             break;
           }
@@ -78,7 +78,7 @@ export function setAutoLayout (currentNode: SceneNode): void {
       }
 
       if (cue) {
-        node.layoutMode = props.flexDirection;
+        node.layoutMode = props.autoLayout;
         node.primaryAxisAlignItems = props.justifyContent;
         node.itemSpacing = props.gap;
         node.paddingTop = props.paddingTop;
@@ -87,7 +87,7 @@ export function setAutoLayout (currentNode: SceneNode): void {
         node.paddingRight = props.paddingRight;
       }
 
-      console.log(node.name + ":", props);
+      // console.log(node.name + ":", props);
     }
   }
 }
