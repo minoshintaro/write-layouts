@@ -21,15 +21,12 @@ const commandCatalog: Settings = {
     { name: 'Hug Vertically', message: 'Hug', task: (node) => setFlexAxis(node, 'hug') }
   ],
   align: [
-    { name: 'Top Left', message: 'Align Top Left' },
-    { name: 'Top Center', message: 'Align Top Center' },
-    { name: 'Top Right', message: 'Align Top Right' },
-    { name: 'Left', message: 'Align Left' },
-    { name: 'Center', message: 'Align Center' },
-    { name: 'Right', message: 'Align Right' },
-    { name: 'Bottom Left', message: 'Align Bottom Left' },
-    { name: 'Bottom Center', message: 'Align Bottom Center' },
-    { name: 'Bottom Right', message: 'Align Bottom Right' },
+    { name: 'Left', message: 'Align Top Left' },
+    { name: 'Center', message: 'Align Top Center' },
+    { name: 'Right', message: 'Align Top Right' },
+    { name: 'Top', message: 'Align Left' },
+    { name: 'Middle', message: 'Align Center' },
+    { name: 'Bottom', message: 'Align Right' }
   ],
   get: (type) => {
     switch (type) {
@@ -45,9 +42,6 @@ const commandCatalog: Settings = {
     }
   }
 };
-
-console.log(commandCatalog.main.map(item => item.name));
-console.log(commandCatalog.get('main'));
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
   function getAnswerList (key: string): string[] {
@@ -94,12 +88,7 @@ figma.on('run', ({ parameters }: RunEvent) => {
         commandCatalog.sub[2].task(node);
         break;
       }
-      default: {
-        message = 'Resizing & Auto Layout';
-        resizeObject(node);
-        setAutoLayout(node);
-        break;
-      }
+      default: break;
     }
   }
 
