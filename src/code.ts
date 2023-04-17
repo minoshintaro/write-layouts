@@ -12,11 +12,11 @@ type Settings = {
 
 const commandCatalog: Settings = {
   main: [
-    { name: 'Auto Layout', message: 'Auto layout added', task: (node) => setAutoLayout(node) },
+    { name: 'Auto Layout by Name', message: 'Auto layout added', task: (node) => setAutoLayout(node) },
     { name: 'Overwrite with Auto Layout', message: 'Layer name rewrited', task: (node) => setLayerName(node) }
   ],
   sub: [
-    { name: 'Resize Selections', message: 'Resized', task: (node) => resizeObject(node) },
+    { name: 'Resize by Name', message: 'Resized', task: (node) => resizeObject(node) },
     { name: 'Fill Horizontally', message: 'Fill', task: (node) => setFlexAxis(node, 'fill') },
     { name: 'Hug Vertically', message: 'Hug', task: (node) => setFlexAxis(node, 'hug') }
   ],
@@ -45,6 +45,9 @@ const commandCatalog: Settings = {
     }
   }
 };
+
+console.log(commandCatalog.main.map(item => item.name));
+console.log(commandCatalog.get('main'));
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
   function getAnswerList (key: string): string[] {
