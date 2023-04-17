@@ -11,7 +11,7 @@ export function setFlexAxis (currentNode: SceneNode, key: string): void {
       // ※ fill にするには、AutoLayoutの親が必要
       if (props.parentLayout !== 'NONE') {
         // 自分が AutoLayout の場合、軸サイズを設定する
-        if (currentNode.type === 'FRAME') {
+        if (currentNode.type === 'FRAME' || currentNode.type === 'INSTANCE') {
           switch (props.autoLayout) {
             case 'HORIZONTAL': {
               currentNode.primaryAxisSizingMode = 'FIXED';
