@@ -29,7 +29,7 @@ export function resizeObject (currentNode: SceneNode): void {
           break;
         }
         case nameIs.aspectRatio(name): {
-          size.ratio = convertNameTo.decimal(name);
+          size.ratio = convertNameTo.multiplier(name);
           break;
         }
         default: break;

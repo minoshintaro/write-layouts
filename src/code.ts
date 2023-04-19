@@ -1,7 +1,8 @@
-import { resizeObject } from './resizeObject';
+import { setObjectSize } from './setObjectSize';
 import { setAutoLayout } from './setAutoLayout';
 import { setFlexAxis } from './setFlexAxis';
 import { setLayerName } from './setLayerName';
+// import { test } from './test';
 
 type Settings = {
   main: { name: string; message: string; task: (node: SceneNode) => void }[],
@@ -16,7 +17,7 @@ const commandCatalog: Settings = {
     { name: 'Overwrite with Auto Layout', message: 'Layer name rewrited', task: (node) => setLayerName(node) }
   ],
   sub: [
-    { name: 'Resize by Name', message: 'Resized', task: (node) => resizeObject(node) },
+    { name: 'Resize by Name', message: 'Resized', task: (node) => setObjectSize(node) },
     { name: 'Fill Horizontally', message: 'Fill', task: (node) => setFlexAxis(node, 'fill') },
     { name: 'Hug Vertically', message: 'Hug', task: (node) => setFlexAxis(node, 'hug') }
   ],
@@ -88,6 +89,10 @@ figma.on('run', ({ parameters }: RunEvent) => {
         commandCatalog.sub[2].task(node);
         break;
       }
+      // case 'test': {
+      //   message = 'Test';
+      //   test(node);
+      // }
       default: break;
     }
   }

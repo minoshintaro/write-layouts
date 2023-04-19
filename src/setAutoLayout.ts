@@ -1,93 +1,27 @@
-import { convertNameTo } from './convertNameTo';
-import { nameIs } from './nameIs';
-import { getFrameNodeList } from './getFrameNodeList';
-import { getSplitNameList } from './getSplitNameList';
-import { pattern } from './pattern';
+import { getMapByFrameName } from "./getMapByFrameName";
 
-export function setAutoLayout (currentNode: SceneNode): void {
-  for (const node of getFrameNodeList(currentNode)) {
-    if ('layoutMode' in node) {
-      let cue = false;
-      let props = {
-        autoLayout: node.layoutMode, // 'NONE' | 'HORIZONTAL' | 'VERTICAL'
-        justifyContent: node.primaryAxisAlignItems, // 'MIN' | 'MAX' | 'CENTER' | 'SPACE_BETWEEN'
-        gap: 0, // number
-        paddingTop: 0, // number
-        paddingBottom: 0, // number
-        paddingLeft: 0, // number
-        paddingRight: 0, // number
+export function setAutoLayout (node: SceneNode): void {
+  if (node.type === 'FRAME' || node.type === 'COMPONENT') {
+    const subList = node.findAllWithCriteria({ types: ['FRAME'] });
+    const nodeList = node.type === 'FRAME' ? Array(node).concat(subList) : subList;
+
+    for (const node of nodeList) {
+      const map = getMapByFrameName(node.name);
+      const checkCurrentJustification = () => node.primaryAxisAlignItems === 'SPACE_BETWEEN' ? 'MIN' : node.primaryAxisAlignItems;
+
+      if (map.has('direction')) {
+        node.layoutMode = map.get('direction');
+        node.primaryAxisAlignItems = map.has('justification') ? map.get('justification') : checkCurrentJustification();
+        node.itemSpacing = map.has('gap') ? map.get('gap') : 0
+        node.paddingTop = map.has('paddingTop') ? map.get('paddingTop') : 0;
+        node.paddingBottom = map.has('paddingBottom') ? map.get('paddingBottom') : 0;
+        node.paddingLeft = map.has('paddingLeft') ? map.get('paddingLeft') : 0;
+        node.paddingRight = map.has('paddingRight') ? map.get('paddingRight') : 0;
       }
 
-      for (const name of getSplitNameList(node)) {
-        const pixelValue = convertNameTo.number(name);
-
-        switch (true) {
-          case pattern.isRow(name): {
-            props.autoLayout = 'HORIZONTAL';
-            cue = true;
-            break;
-          }
-          case pattern.isColumn(name): {
-            props.autoLayout = 'VERTICAL';
-            cue = true;
-            break;
-          }
-          case pattern.isJustification(name): {
-            props.justifyContent = 'SPACE_BETWEEN';
-            break;
-          }
-          case nameIs.gap(name): {
-            props.gap = pixelValue;
-            break;
-          }
-          case nameIs.padding(name): {
-            props.paddingTop = pixelValue;
-            props.paddingBottom = pixelValue;
-            props.paddingLeft = pixelValue;
-            props.paddingRight = pixelValue;
-            break;
-          }
-          case nameIs.paddingBlock(name): {
-            props.paddingTop = pixelValue;
-            props.paddingBottom = pixelValue;
-            break;
-          }
-          case nameIs.paddingInline(name): {
-            props.paddingLeft = pixelValue;
-            props.paddingRight = pixelValue;
-            break;
-          }
-          case nameIs.paddingTop(name): {
-            props.paddingTop = pixelValue;
-            break;
-          }
-          case nameIs.paddingBottom(name): {
-            props.paddingBottom = pixelValue;
-            break;
-          }
-          case nameIs.paddingLeft(name): {
-            props.paddingLeft = pixelValue;
-            break;
-          }
-          case nameIs.paddingRight(name): {
-            props.paddingRight = pixelValue;
-            break;
-          }
-          default: break;
-        }
-      }
-
-      if (cue) {
-        node.layoutMode = props.autoLayout;
-        node.primaryAxisAlignItems = props.justifyContent;
-        node.itemSpacing = props.gap;
-        node.paddingTop = props.paddingTop;
-        node.paddingBottom = props.paddingBottom;
-        node.paddingLeft = props.paddingLeft;
-        node.paddingRight = props.paddingRight;
-      }
-
-      // console.log(node.name + ":", props);
+      // console.log('autoLayout:', node.layoutMode, node.primaryAxisAlignItems, node.itemSpacing, node.paddingTop, node.paddingBottom, node.paddingLeft, node.paddingRight);
     }
+  } else {
+    figma.closePlugin('Not Frame');
   }
 }
