@@ -74,6 +74,5 @@ export function getMapByFrameName (frameName: string) {
       }
     }
   }
-
   return map;
 }

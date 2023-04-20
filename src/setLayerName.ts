@@ -1,10 +1,12 @@
-import { getFrameNodeList } from './getFrameNodeList';
 import { getSplitNameList } from './getSplitNameList';
 import { pattern } from './pattern';
 
 export function setLayerName (currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME') {
-    for (const node of getFrameNodeList(currentNode)) {
+    const subList = currentNode.findAllWithCriteria({ types: ['FRAME'] });
+    const nodeList = currentNode.type === 'FRAME' ? Array(currentNode).concat(subList) : subList;
+
+    for (const node of nodeList) {
       if ('layoutMode' in node && node.layoutMode !== 'NONE') {
         let props = {
           flexDirection: node.layoutMode,

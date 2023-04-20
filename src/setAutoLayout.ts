@@ -7,18 +7,17 @@ export function setAutoLayout (node: SceneNode): void {
 
     for (const node of nodeList) {
       const map = getMapByFrameName(node.name);
-      const checkCurrentJustification = () => node.primaryAxisAlignItems === 'SPACE_BETWEEN' ? 'MIN' : node.primaryAxisAlignItems;
+      const getCurrentAlignment = (): string => node.primaryAxisAlignItems === 'SPACE_BETWEEN' ? 'MIN' : node.primaryAxisAlignItems;
 
       if (map.has('direction')) {
         node.layoutMode = map.get('direction');
-        node.primaryAxisAlignItems = map.has('justification') ? map.get('justification') : checkCurrentJustification();
+        node.primaryAxisAlignItems = map.has('justification') ? map.get('justification') : getCurrentAlignment();
         node.itemSpacing = map.has('gap') ? map.get('gap') : 0
         node.paddingTop = map.has('paddingTop') ? map.get('paddingTop') : 0;
         node.paddingBottom = map.has('paddingBottom') ? map.get('paddingBottom') : 0;
         node.paddingLeft = map.has('paddingLeft') ? map.get('paddingLeft') : 0;
         node.paddingRight = map.has('paddingRight') ? map.get('paddingRight') : 0;
       }
-
       // console.log('autoLayout:', node.layoutMode, node.primaryAxisAlignItems, node.itemSpacing, node.paddingTop, node.paddingBottom, node.paddingLeft, node.paddingRight);
     }
   } else {

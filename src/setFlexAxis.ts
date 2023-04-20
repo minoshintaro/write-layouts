@@ -1,8 +1,8 @@
-import { getParentMode } from "./getParentMode";
+import { getParentLayoutMode } from "./getParentLayoutMode";
 
 export function setFlexAxis (currentNode: SceneNode, key: string): void {
   let props = {
-    parentLayout: getParentMode(currentNode),
+    parentLayout: getParentLayoutMode(currentNode),
     autoLayout: ('layoutMode' in currentNode) ? currentNode.layoutMode : 'NONE', // 'NONE' | 'HORIZONTAL' | 'VERTICAL'
   };
 
