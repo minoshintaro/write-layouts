@@ -1,101 +1,72 @@
 import { getSplitNameList } from './getSplitNameList';
-import { pattern } from './pattern';
+import { patterns } from './patterns';
 
 export function setLayerName (currentNode: SceneNode): void {
-  if (currentNode.type === 'FRAME') {
+  if (currentNode.type === 'FRAME' || currentNode.type === 'COMPONENT') {
     const subList = currentNode.findAllWithCriteria({ types: ['FRAME'] });
     const nodeList = currentNode.type === 'FRAME' ? Array(currentNode).concat(subList) : subList;
 
     for (const node of nodeList) {
-      if ('layoutMode' in node && node.layoutMode !== 'NONE') {
-        let props = {
-          flexDirection: node.layoutMode,
-          justifyContent: node.primaryAxisAlignItems,
-          gap: node.itemSpacing,
-          paddingTop: node.paddingTop,
-          paddingBottom: node.paddingBottom,
-          paddingLeft: node.paddingLeft,
-          paddingRight: node.paddingRight
+      const props = new Map<string, string>();
+
+      const listOf = (target: string[], key: string): string[] => {
+        return target.filter(item => patterns.get(key).test(item));
+      }
+
+      const name = listOf(getSplitNameList(node), 'notPropName').join(' ');
+      const pt = node.paddingTop;
+      const pb = node.paddingBottom;
+      const pl = node.paddingLeft;
+      const pr = node.paddingRight;
+      const px = pl === pr ? pl : 0;
+      const py = pt === pb ? pt : 0;
+      const p = px === py ? px : 0;
+      const width = listOf(getSplitNameList(node), 'width').slice(-1).toString();
+      const height = listOf(getSplitNameList(node), 'height').slice(-1).toString();
+      const aspect = listOf(getSplitNameList(node), 'aspect').slice(-1).toString();
+
+      if (name) { props.set('name', name); }
+
+      switch (node.layoutMode) {
+        case 'HORIZONTAL': {
+          props.set('direction', 'row');
+          break;
         }
-
-        function setGapName (g: number, j: string): string {
-          switch (true) {
-            case j === 'SPACE_BETWEEN': return 'g-auto';
-            case g !== 0 : return 'g-' + g;
-            default: return 'NONE';
-          }
+        case 'VERTICAL': {
+          props.set('direction', 'col');
+          break;
         }
-
-        function setPaddingName (t: number, b: number, l: number, r: number): string {
-          const x = (l !== 0) && (l === r) ? l : 0;
-          const y = (t !== 0) && (t === b) ? t : 0;
-          const p = (x !== 0) && (x === y) ? x : 0;
-
-          if (p) {
-            return 'p-' + p;
-          } else if (x && y) {
-            return 'px-' + x + ' py-' + y;
-          } else if (x) {
-            switch (true) {
-              case t !== 0 && b !==0: return 'px-' + x + ' pt-' + t + ' pb-' + b;
-              case t !== 0 && b ===0: return 'px-' + x + ' pt-' + t;
-              case t === 0 && b !==0: return 'px-' + x + ' pb-' + b;
-              default: return 'px-' + x;
-            }
-          } else if (y) {
-            switch (true) {
-              case l !== 0 && r !==0: return 'py-' + y + ' pl-' + l + ' pr-' + r;
-              case l !== 0 && r ===0: return 'py-' + y + ' pl-' + l;
-              case l === 0 && r !==0: return 'py-' + y + ' pr-' + r;
-              default: return 'py-' + y;
-            }
-          } else if (t) {
-            switch (true) {
-              case b !== 0 && l !== 0 && r !== 0: return 'pt-' + t + ' pb-' + b + ' pl-' + l + ' pr-' + r;
-              case b !== 0 && l !== 0 && r === 0: return 'pt-' + t + ' pb-' + b + ' pl-' + l;
-              case b !== 0 && l === 0 && r !== 0: return 'pt-' + t + ' pb-' + b + ' pr-' + r;
-              case b !== 0 && l === 0 && r === 0: return 'pt-' + t + ' pb-' + b;
-              case b === 0 && l !== 0 && r !== 0: return 'pt-' + t + ' pl-' + l + ' pr-' + r;
-              case b === 0 && l !== 0 && r === 0: return 'pt-' + t + ' pl-' + l;
-              case b === 0 && l === 0 && r !== 0: return 'pt-' + t + ' pr-' + r;
-              default: return 'pt-' + t;
-            }
-          } else if (b) {
-            switch (true) {
-              case l !== 0 && r !== 0: return 'pb-' + b + ' pl-' + l + ' pr-' + r;
-              case l !== 0 && r === 0: return 'pb-' + b + ' pl-' + l;
-              case l === 0 && r !== 0: return 'pb-' + b + ' pr-' + r;
-              default: return 'pb-' + b;
-            }
-          } else if (l) {
-            switch (true) {
-              case r !== 0: return 'pl-' + l + ' pr-' + r;
-              default: return 'pl-' + l;
-            }
-          } else if (r) {
-            return 'pr-' + r;
-          } else {
-            return 'NONE'
-          }
+        default: break;
+      }
+      switch (node.primaryAxisAlignItems) {
+        case 'SPACE_BETWEEN': {
+          props.set('gap', 'g-auto');
+          break;
         }
-
-        const direction = (props.flexDirection === 'HORIZONTAL') ? 'row' : 'col';
-        const gap = setGapName(props.gap, props.justifyContent);
-        const padding = setPaddingName(props.paddingTop, props.paddingBottom, props.paddingLeft, props.paddingRight);
-
-        const currentNames = getSplitNameList(node).filter(item => {
-          switch (item) {
-            case 'row': break;
-            case 'col': break;
-            default: return item.match(pattern.notSpacing);
+        default: {
+          if (node.itemSpacing !== 0) {
+            props.set('gap', `g-${node.itemSpacing}`);
           }
-        });
-        const nameList = currentNames.concat(Array(direction, gap, padding));
+          break;
+        }
+      }
 
-        node.name = nameList.filter(item => item.match(pattern.notNone)).join(' ');
+      if (p) { props.set('padding', `p-${p}`); }
+      if (!p && px) { props.set('paddingInline', `px-${px}`); }
+      if (!p && py) { props.set('paddingBlock', `py-${py}`); }
+      if (!py && pt) { props.set('paddingTop', `pt-${pt}`); }
+      if (!py && pb) { props.set('paddingBottom', `pb-${pb}`); }
+      if (!px && pl) { props.set('paddingLeft', `pl-${pl}`); }
+      if (!px && pr) { props.set('paddingRight', `pr-${pr}`); }
+      if (width) { props.set('width', width); }
+      if (height) { props.set('height', height); }
+      if (aspect) { props.set('aspect', aspect); }
+
+      if (props.has('direction')) {
+        node.name = [...props.values()].join(' ');
       }
     }
   } else {
-    figma.closePlugin('Not Auto Layout');
+    figma.closePlugin('Not Frame');
   }
 }

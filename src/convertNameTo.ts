@@ -1,8 +1,8 @@
-import { pattern } from "./pattern";
+import { patterns } from "./patterns";
 
 export const convertNameTo = {
   number: (name: string): number => {
-    return Number(name.replace(pattern.notNumber, ''));
+    return Number(name.replace(patterns.get('notNumber'), ''));
   },
   multiplier: (name: string, type?: string): number => {
     const ratio = name.split('x').map(Number);

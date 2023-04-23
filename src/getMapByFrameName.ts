@@ -1,9 +1,9 @@
 import { convertNameTo } from './convertNameTo';
-import { pattern } from './pattern';
+import { patterns } from './patterns';
 
 export function getMapByFrameName (frameName: string) {
   const map = new Map();
-  const nameList = frameName.replace(pattern.frame, '').trim().split(/\s/);
+  const nameList = frameName.replace(patterns.get('frame'), '').trim().split(/\s/);
 
   for (const name of nameList) {
     switch (name) {

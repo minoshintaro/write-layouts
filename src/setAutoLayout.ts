@@ -1,26 +1,27 @@
 import { getMapByFrameName } from "./getMapByFrameName";
 
-export function setAutoLayout (node: SceneNode): void {
-  if (node.type === 'FRAME' || node.type === 'COMPONENT') {
-    const subList = node.findAllWithCriteria({ types: ['FRAME'] });
-    const nodeList = node.type === 'FRAME' ? Array(node).concat(subList) : subList;
+export function setAutoLayout (currentNode: SceneNode): void {
+  if (currentNode.type === 'FRAME' || currentNode.type === 'COMPONENT') {
+    const subList = currentNode.findAllWithCriteria({ types: ['FRAME'] });
+    const nodeList = currentNode.type === 'FRAME' ? Array(currentNode).concat(subList) : subList;
 
     for (const node of nodeList) {
-      const map = getMapByFrameName(node.name);
-      const getCurrentAlignment = (): string => node.primaryAxisAlignItems === 'SPACE_BETWEEN' ? 'MIN' : node.primaryAxisAlignItems;
+      const names = getMapByFrameName(node.name);
+      const getCurrentAlignmentValue = (): string => node.primaryAxisAlignItems === 'SPACE_BETWEEN' ? 'MIN' : node.primaryAxisAlignItems;
 
-      if (map.has('direction')) {
-        node.layoutMode = map.get('direction');
-        node.primaryAxisAlignItems = map.has('justification') ? map.get('justification') : getCurrentAlignment();
-        node.itemSpacing = map.has('gap') ? map.get('gap') : 0
-        node.paddingTop = map.has('paddingTop') ? map.get('paddingTop') : 0;
-        node.paddingBottom = map.has('paddingBottom') ? map.get('paddingBottom') : 0;
-        node.paddingLeft = map.has('paddingLeft') ? map.get('paddingLeft') : 0;
-        node.paddingRight = map.has('paddingRight') ? map.get('paddingRight') : 0;
+      if (names.has('direction')) {
+        node.layoutMode = names.get('direction');
+        node.primaryAxisAlignItems = names.has('justification') ? names.get('justification') : getCurrentAlignmentValue();
+        node.itemSpacing = names.has('gap') ? names.get('gap') : 0
+        node.paddingTop = names.has('paddingTop') ? names.get('paddingTop') : 0;
+        node.paddingBottom = names.has('paddingBottom') ? names.get('paddingBottom') : 0;
+        node.paddingLeft = names.has('paddingLeft') ? names.get('paddingLeft') : 0;
+        node.paddingRight = names.has('paddingRight') ? names.get('paddingRight') : 0;
       }
+
       // console.log('autoLayout:', node.layoutMode, node.primaryAxisAlignItems, node.itemSpacing, node.paddingTop, node.paddingBottom, node.paddingLeft, node.paddingRight);
     }
   } else {
-    figma.closePlugin('Not Frame');
+    figma.closePlugin('Please select frames');
   }
 }

@@ -3,7 +3,7 @@ import { getMapByFrameName } from "./getMapByFrameName";
 
 export function setObjectSize (node: SceneNode): void {
   if (node.type === 'FRAME' || node.type === 'RECTANGLE') {
-    const map = getMapByFrameName(node.name);
+    const names = getMapByFrameName(node.name);
 
     const isStretch = (): boolean => {
       switch (getParentLayoutMode(node)) {
@@ -14,34 +14,32 @@ export function setObjectSize (node: SceneNode): void {
     };
 
     const calculateByRatio = (value: number, type?: string): number => {
-      const result = Math.round(value * map.get(type === 'inverse' ? 'inverseRatio' : 'ratio'))
+      const result = Math.round(value * names.get(type === 'inverse' ? 'inverseRatio' : 'ratio'))
       return result >= 1 ? result : 1;
     };
 
-    if (map.has('ratio')) {
-      if (!map.has('width') && !map.has('height')) {
-        map.set('width', node.width);
-        map.set('height', calculateByRatio(node.width));
-      } else if (!map.has('width') && map.has('height')) {
-        map.set('width', calculateByRatio(map.get('height'), 'inverse'));
-      } else if (map.has('width') && !map.has('height')) {
-        map.set('height', calculateByRatio(map.get('width')));
+    if (names.has('ratio')) {
+      if (!names.has('width') && !names.has('height')) {
+        names.set('width', node.width);
+        names.set('height', calculateByRatio(node.width));
+      } else if (!names.has('width') && names.has('height')) {
+        names.set('width', calculateByRatio(names.get('height'), 'inverse'));
+      } else if (names.has('width') && !names.has('height')) {
+        names.set('height', calculateByRatio(names.get('width')));
       }
-      if (isStretch() && !map.has('height')) {
-        map.set('height', calculateByRatio(node.width));
-        console.log('Under AutoLayout');
+      if (isStretch() && !names.has('height')) {
+        names.set('height', calculateByRatio(node.width));
       }
     } else {
-      if (!map.has('width')) {
-        map.set('width', node.width);
+      if (!names.has('width')) {
+        names.set('width', node.width);
       }
-      if (!map.has('height')) {
-        map.set('height', node.height);
+      if (!names.has('height')) {
+        names.set('height', node.height);
       }
     }
 
-    node.resizeWithoutConstraints(map.get('width'), map.get('height'));
-    // console.log(node.name, map.get('width'), map.get('height'));
+    node.resizeWithoutConstraints(names.get('width'), names.get('height'));
   } else {
     figma.closePlugin('Not Resized');
   }

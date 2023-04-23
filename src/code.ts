@@ -8,50 +8,52 @@ type Command = {
   message: string;
   task: (node: SceneNode) => void;
 }
-const commandMap = new Map<string, Command>();
-commandMap.set(
+const commands = new Map<string, Command>();
+
+commands.set(
   'Auto Layout by Name',
   { message: 'Auto layout added', task: (node) => setAutoLayout(node) }
 );
-commandMap.set(
+commands.set(
   'Overwrite with Auto Layout',
   { message: 'Layer name rewrited', task: (node) => setLayerName(node) }
 );
-commandMap.set(
+commands.set(
   'Resize by Name',
   { message: 'Resized', task: (node) => setObjectSize(node) }
 );
-commandMap.set(
+commands.set(
   'Fill Horizontally',
   { message: 'Fill', task: (node) => setFlexAxis(node, 'fill') }
 );
-commandMap.set(
+commands.set(
   'Hug Vertically',
   { message: 'Hug', task: (node) => setFlexAxis(node, 'hug') }
 );
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
-  const commandsOf = (key: string): string[] => {
-    const commandList: string[] = [...commandMap.keys()];
+  const listOf = (targets: string[], key: string): string[] => {
     switch (key) {
-      case '': return commandList.slice(0, 2);
-      case ' ': return commandList;
+      case '': return targets.slice(0, 2);
+      case ' ': return targets;
       default: {
         const pattern = RegExp(`^${key.trim()}`, 'i');
-        return commandList.filter(item => item.match(pattern));
+        return targets.filter(item => item.match(pattern));
       }
     }
   }
-  result.setSuggestions(commandsOf(query));
+  result.setSuggestions(listOf([...commands.keys()], query));
 });
 
 figma.on('run', ({ parameters }: RunEvent) => {
-  if (parameters && commandMap.has(parameters.key)) {
-    const command = commandMap.get(parameters.key);
+  const selectNodes = figma.currentPage.selection;
+  if (selectNodes.length > 0 && parameters) {
+    const command = commands.get(parameters.task);
     if (command) {
-      figma.currentPage.selection.forEach(node => command.task(node));
+      selectNodes.forEach(node => command.task(node));
       figma.closePlugin(command.message);
     }
+  } else {
+    figma.closePlugin('Please select layers');
   }
-  figma.closePlugin('Please select layers');
 });
