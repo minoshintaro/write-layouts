@@ -54,6 +54,6 @@ figma.on('run', ({ parameters }: RunEvent) => {
       figma.closePlugin(command.message);
     }
   } else {
-    figma.closePlugin('Please select layers');
+    figma.closePlugin('Please select a layer');
   }
 });

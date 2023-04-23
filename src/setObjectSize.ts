@@ -1,14 +1,14 @@
 import { getParentLayoutMode } from "./getParentLayoutMode";
 import { getMapByFrameName } from "./getMapByFrameName";
 
-export function setObjectSize (node: SceneNode): void {
-  if (node.type === 'FRAME' || node.type === 'RECTANGLE') {
-    const names = getMapByFrameName(node.name);
+export function setObjectSize (currentNode: SceneNode): void {
+  if (currentNode.type === 'FRAME' || currentNode.type === 'RECTANGLE') {
+    const names = getMapByFrameName(currentNode.name);
 
     const isStretch = (): boolean => {
-      switch (getParentLayoutMode(node)) {
-        case 'HORIZONTAL': return node.layoutGrow === 1 ? true : false;
-        case 'VERTICAL': return node.layoutAlign === 'STRETCH' ? true : false;
+      switch (getParentLayoutMode(currentNode)) {
+        case 'HORIZONTAL': return currentNode.layoutGrow === 1 ? true : false;
+        case 'VERTICAL': return currentNode.layoutAlign === 'STRETCH' ? true : false;
         default: return false;
       }
     };
@@ -20,26 +20,22 @@ export function setObjectSize (node: SceneNode): void {
 
     if (names.has('ratio')) {
       if (!names.has('width') && !names.has('height')) {
-        names.set('width', node.width);
-        names.set('height', calculateByRatio(node.width));
+        names.set('width', currentNode.width);
+        names.set('height', calculateByRatio(currentNode.width));
       } else if (!names.has('width') && names.has('height')) {
         names.set('width', calculateByRatio(names.get('height'), 'inverse'));
       } else if (names.has('width') && !names.has('height')) {
         names.set('height', calculateByRatio(names.get('width')));
       }
       if (isStretch() && !names.has('height')) {
-        names.set('height', calculateByRatio(node.width));
+        names.set('height', calculateByRatio(currentNode.width));
       }
     } else {
-      if (!names.has('width')) {
-        names.set('width', node.width);
-      }
-      if (!names.has('height')) {
-        names.set('height', node.height);
-      }
+      if (!names.has('width')) { names.set('width', currentNode.width); }
+      if (!names.has('height')) { names.set('height', currentNode.height); }
     }
 
-    node.resizeWithoutConstraints(names.get('width'), names.get('height'));
+    currentNode.resizeWithoutConstraints(names.get('width'), names.get('height'));
   } else {
     figma.closePlugin('Not Resized');
   }

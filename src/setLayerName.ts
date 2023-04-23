@@ -23,7 +23,7 @@ export function setLayerName (currentNode: SceneNode): void {
       const p = px === py ? px : 0;
       const width = listOf(getSplitNameList(node), 'width').slice(-1).toString();
       const height = listOf(getSplitNameList(node), 'height').slice(-1).toString();
-      const aspect = listOf(getSplitNameList(node), 'aspect').slice(-1).toString();
+      const ratio = listOf(getSplitNameList(node), 'ratio').slice(-1).toString();
 
       if (name) { props.set('name', name); }
 
@@ -60,7 +60,7 @@ export function setLayerName (currentNode: SceneNode): void {
       if (!px && pr) { props.set('paddingRight', `pr-${pr}`); }
       if (width) { props.set('width', width); }
       if (height) { props.set('height', height); }
-      if (aspect) { props.set('aspect', aspect); }
+      if (ratio) { props.set('ratio', ratio); }
 
       if (props.has('direction')) {
         node.name = [...props.values()].join(' ');
