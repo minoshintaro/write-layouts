@@ -1,41 +1,33 @@
-import { getParentLayoutMode } from "./getParentLayoutMode";
-import { getMapByFrameName } from "./getMapByFrameName";
+import { getValuesFromName } from "./getValuesFromName";
+import { isStretch } from "./isStretch";
 
 export function setObjectSize (currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME' || currentNode.type === 'RECTANGLE') {
-    const names = getMapByFrameName(currentNode.name);
-
-    const isStretch = (): boolean => {
-      switch (getParentLayoutMode(currentNode)) {
-        case 'HORIZONTAL': return currentNode.layoutGrow === 1 ? true : false;
-        case 'VERTICAL': return currentNode.layoutAlign === 'STRETCH' ? true : false;
-        default: return false;
-      }
-    };
+    const values = getValuesFromName(currentNode);
 
     const calculateByRatio = (value: number, type?: string): number => {
-      const result = Math.round(value * names.get(type === 'inverse' ? 'inverseRatio' : 'ratio'))
+      const result = Math.round(value * values.get(type === 'inverse' ? 'inverseRatio' : 'ratio'));
       return result >= 1 ? result : 1;
     };
 
-    if (names.has('ratio')) {
-      if (!names.has('width') && !names.has('height')) {
-        names.set('width', currentNode.width);
-        names.set('height', calculateByRatio(currentNode.width));
-      } else if (!names.has('width') && names.has('height')) {
-        names.set('width', calculateByRatio(names.get('height'), 'inverse'));
-      } else if (names.has('width') && !names.has('height')) {
-        names.set('height', calculateByRatio(names.get('width')));
+    if (values.has('ratio')) {
+      if (!values.has('width') && !values.has('height')) {
+        values.set('width', currentNode.width);
+        values.set('height', calculateByRatio(currentNode.width));
+      } else if (!values.has('width') && values.has('height')) {
+        values.set('width', calculateByRatio(values.get('height'), 'inverse'));
+      } else if (values.has('width') && !values.has('height')) {
+        values.set('height', calculateByRatio(values.get('width')));
       }
-      if (isStretch() && !names.has('height')) {
-        names.set('height', calculateByRatio(currentNode.width));
+      if (isStretch(currentNode) && !values.has('height')) {
+        values.set('height', calculateByRatio(currentNode.width));
       }
     } else {
-      if (!names.has('width')) { names.set('width', currentNode.width); }
-      if (!names.has('height')) { names.set('height', currentNode.height); }
+      if (!values.has('width')) { values.set('width', currentNode.width); }
+      if (!values.has('height')) { values.set('height', currentNode.height); }
     }
 
-    currentNode.resizeWithoutConstraints(names.get('width'), names.get('height'));
+    currentNode.resizeWithoutConstraints(values.get('width'), values.get('height'));
   } else {
     figma.closePlugin('Not Resized');
   }

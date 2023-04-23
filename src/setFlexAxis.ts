@@ -1,8 +1,46 @@
-import { getParentLayoutMode } from "./getParentLayoutMode";
+import { getLayoutMode } from "./getLayoutMode";
 
 export function setFlexAxis (currentNode: SceneNode, key: string): void {
+  const props = new Map();
+  props.set('parentLayout', getLayoutMode(currentNode, 'parent'));
+  props.set('selfLayout', getLayoutMode(currentNode));
+
+  // [1] AxisSizingMode
+  if (currentNode.type === 'FRAME' || currentNode.type === 'INSTANCE') {
+    switch (props.get('selfLayout')) {
+      case 'HORIZONTAL': {
+        if (key === 'fill') { currentNode.primaryAxisSizingMode = 'FIXED'; }
+        if (key === 'hug') { currentNode.counterAxisSizingMode = 'AUTO'; }
+      }
+      case 'VERTICAL': {
+        if (key === 'fill') { currentNode.counterAxisSizingMode = 'FIXED'; }
+        if (key === 'hug') { currentNode.primaryAxisSizingMode = 'AUTO'; }
+      }
+      default: break;
+    }
+  }
+
+  // [2] As AutoLayout Items
+  if (props.get('parentLayout') !== 'NONE' && 'layoutGrow' in currentNode) {
+    switch (props.get('parentLayout')) {
+      case 'HORIZONTAL': {
+        if (key === 'fill') { currentNode.layoutGrow = 1; } // 親の主軸
+        if (key === 'hug') { currentNode.layoutAlign = 'INHERIT'; } // 親の副軸
+        break;
+      }
+      case 'VERTICAL': {
+        if (key === 'fill') { currentNode.layoutAlign = 'STRETCH'; } // 親の副軸
+        if (key === 'hug') { currentNode.layoutGrow = 0; } // 親の主軸
+        break;
+      }
+      default: break;
+    }
+  }
+}
+
+export function setFlexAxis2 (currentNode: SceneNode, key: string): void {
   let props = {
-    parentLayout: getParentLayoutMode(currentNode),
+    parentLayout: getLayoutMode(currentNode, 'parent'),
     autoLayout: ('layoutMode' in currentNode) ? currentNode.layoutMode : 'NONE', // 'NONE' | 'HORIZONTAL' | 'VERTICAL'
   };
 

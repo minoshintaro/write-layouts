@@ -1,6 +1,6 @@
 import { patterns } from "./patterns";
 
-export const convertNameTo = {
+export const convertTo = {
   number: (name: string): number => {
     return Number(name.replace(patterns.get('notNumber'), ''));
   },

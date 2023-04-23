@@ -1,5 +1,4 @@
 import { getSplitNameList } from './getSplitNameList';
-import { patterns } from './patterns';
 
 export function setLayerName (currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME' || currentNode.type === 'COMPONENT') {
@@ -8,12 +7,7 @@ export function setLayerName (currentNode: SceneNode): void {
 
     for (const node of nodeList) {
       const props = new Map<string, string>();
-
-      const listOf = (target: string[], key: string): string[] => {
-        return target.filter(item => patterns.get(key).test(item));
-      }
-
-      const name = listOf(getSplitNameList(node), 'notPropName').join(' ');
+      const name = getSplitNameList(node, 'notPropName').join(' ');
       const pt = node.paddingTop;
       const pb = node.paddingBottom;
       const pl = node.paddingLeft;
@@ -21,9 +15,9 @@ export function setLayerName (currentNode: SceneNode): void {
       const px = pl === pr ? pl : 0;
       const py = pt === pb ? pt : 0;
       const p = px === py ? px : 0;
-      const width = listOf(getSplitNameList(node), 'width').slice(-1).toString();
-      const height = listOf(getSplitNameList(node), 'height').slice(-1).toString();
-      const ratio = listOf(getSplitNameList(node), 'ratio').slice(-1).toString();
+      const width = getSplitNameList(node, 'width').slice(-1).toString();
+      const height = getSplitNameList(node, 'height').slice(-1).toString();
+      const ratio = getSplitNameList(node, 'ratio').slice(-1).toString();
 
       if (name) { props.set('name', name); }
 

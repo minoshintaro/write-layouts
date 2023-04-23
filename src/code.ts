@@ -1,8 +1,7 @@
-import { setObjectSize } from './setObjectSize';
 import { setAutoLayout } from './setAutoLayout';
 import { setFlexAxis } from './setFlexAxis';
 import { setLayerName } from './setLayerName';
-// import { test } from './test';
+import { setObjectSize } from './setObjectSize';
 
 type Command = {
   message: string;
@@ -46,14 +45,15 @@ figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
 });
 
 figma.on('run', ({ parameters }: RunEvent) => {
-  const selectNodes = figma.currentPage.selection;
-  if (selectNodes.length > 0 && parameters) {
+  if (parameters) {
     const command = commands.get(parameters.task);
-    if (command) {
-      selectNodes.forEach(node => command.task(node));
+    const nodeList = figma.currentPage.selection;
+    if (nodeList.length > 0 && command) {
+      nodeList.forEach(node => command.task(node));
       figma.closePlugin(command.message);
+    } else {
+      figma.closePlugin('Please select a layer');
     }
-  } else {
-    figma.closePlugin('Please select a layer');
   }
 });
+
