@@ -1,5 +1,6 @@
 import { convertTo } from './convertTo';
 import { getSplitNameList } from './getSplitNameList';
+import { patterns } from './patterns';
 
 export function getValuesFromName (node: SceneNode) {
   const map = new Map();
@@ -64,7 +65,7 @@ export function getValuesFromName (node: SceneNode) {
           map.set('height', convertTo.number(name));
           break;
         }
-        if (/^[0-9]{1,4}x[0-9]{1,4}$/.test(name)) {
+        if (patterns.get('ratio').test(name)) {
           map.set('ratio', convertTo.multiplier(name));
           map.set('inverseRatio', convertTo.multiplier(name, 'inverse'));
           break;

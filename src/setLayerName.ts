@@ -1,11 +1,10 @@
+import { getFrameNodeList } from "./getFrameNodeList";
 import { getSplitNameList } from './getSplitNameList';
 
 export function setLayerName (currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME' || currentNode.type === 'COMPONENT') {
-    const subList = currentNode.findAllWithCriteria({ types: ['FRAME'] });
-    const nodeList = currentNode.type === 'FRAME' ? Array(currentNode).concat(subList) : subList;
 
-    for (const node of nodeList) {
+    for (const node of getFrameNodeList(currentNode)) {
       const props = new Map<string, string>();
       const name = getSplitNameList(node, 'notPropName').join(' ');
       const pt = node.paddingTop;
@@ -21,28 +20,40 @@ export function setLayerName (currentNode: SceneNode): void {
 
       if (name) { props.set('name', name); }
 
-      switch (node.layoutMode) {
-        case 'HORIZONTAL': {
-          props.set('direction', 'row');
-          break;
-        }
-        case 'VERTICAL': {
-          props.set('direction', 'col');
-          break;
-        }
-        default: break;
+      // switch (node.layoutMode) {
+      //   case 'HORIZONTAL': {
+      //     props.set('direction', 'row');
+      //     break;
+      //   }
+      //   case 'VERTICAL': {
+      //     props.set('direction', 'col');
+      //     break;
+      //   }
+      //   default: break;
+      // }
+      // switch (node.primaryAxisAlignItems) {
+      //   case 'SPACE_BETWEEN': {
+      //     props.set('gap', 'g-auto');
+      //     break;
+      //   }
+      //   default: {
+      //     if (node.itemSpacing !== 0) {
+      //       props.set('gap', `g-${node.itemSpacing}`);
+      //     }
+      //     break;
+      //   }
+      // }
+
+      if (node.layoutMode === 'HORIZONTAL') {
+        props.set('direction', 'row');
+      } else if (node.layoutMode === 'VERTICAL') {
+        props.set('direction', 'col');
       }
-      switch (node.primaryAxisAlignItems) {
-        case 'SPACE_BETWEEN': {
-          props.set('gap', 'g-auto');
-          break;
-        }
-        default: {
-          if (node.itemSpacing !== 0) {
-            props.set('gap', `g-${node.itemSpacing}`);
-          }
-          break;
-        }
+
+      if (node.primaryAxisAlignItems === 'SPACE_BETWEEN') {
+        props.set('gap', 'g-auto');
+      } else if (node.itemSpacing !== 0) {
+        props.set('gap', `g-${node.itemSpacing}`);
       }
 
       if (p) { props.set('padding', `p-${p}`); }

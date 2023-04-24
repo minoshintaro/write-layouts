@@ -56,4 +56,3 @@ figma.on('run', ({ parameters }: RunEvent) => {
     }
   }
 });
-
