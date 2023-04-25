@@ -17,7 +17,7 @@ export function setAutoLayout (currentNode: SceneNode): void {
         node.paddingLeft = values.has('paddingLeft') ? values.get('paddingLeft') : 0;
         node.paddingRight = values.has('paddingRight') ? values.get('paddingRight') : 0;
       } else {
-        figma.closePlugin('No row/col in the frame name');
+        figma.closePlugin('Please write layout props in the layer name');
       }
 
       // console.log('autoLayout:', node.layoutMode, node.primaryAxisAlignItems, node.itemSpacing, node.paddingTop, node.paddingBottom, node.paddingLeft, node.paddingRight);

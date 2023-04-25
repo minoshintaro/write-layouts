@@ -7,6 +7,7 @@ export function setLayerName (currentNode: SceneNode): void {
     for (const node of getFrameNodeList(currentNode)) {
       const props = new Map<string, string>();
       const name = getSplitNameList(node, 'notPropName').join(' ');
+      const gap = node.itemSpacing;
       const pt = node.paddingTop;
       const pb = node.paddingBottom;
       const pl = node.paddingLeft;
@@ -20,30 +21,6 @@ export function setLayerName (currentNode: SceneNode): void {
 
       if (name) { props.set('name', name); }
 
-      // switch (node.layoutMode) {
-      //   case 'HORIZONTAL': {
-      //     props.set('direction', 'row');
-      //     break;
-      //   }
-      //   case 'VERTICAL': {
-      //     props.set('direction', 'col');
-      //     break;
-      //   }
-      //   default: break;
-      // }
-      // switch (node.primaryAxisAlignItems) {
-      //   case 'SPACE_BETWEEN': {
-      //     props.set('gap', 'g-auto');
-      //     break;
-      //   }
-      //   default: {
-      //     if (node.itemSpacing !== 0) {
-      //       props.set('gap', `g-${node.itemSpacing}`);
-      //     }
-      //     break;
-      //   }
-      // }
-
       if (node.layoutMode === 'HORIZONTAL') {
         props.set('direction', 'row');
       } else if (node.layoutMode === 'VERTICAL') {
@@ -53,7 +30,7 @@ export function setLayerName (currentNode: SceneNode): void {
       if (node.primaryAxisAlignItems === 'SPACE_BETWEEN') {
         props.set('gap', 'g-auto');
       } else if (node.itemSpacing !== 0) {
-        props.set('gap', `g-${node.itemSpacing}`);
+        props.set('gap', `g-${gap}`);
       }
 
       if (p) { props.set('padding', `p-${p}`); }
@@ -63,15 +40,18 @@ export function setLayerName (currentNode: SceneNode): void {
       if (!py && pb) { props.set('paddingBottom', `pb-${pb}`); }
       if (!px && pl) { props.set('paddingLeft', `pl-${pl}`); }
       if (!px && pr) { props.set('paddingRight', `pr-${pr}`); }
+
       if (width) { props.set('width', width); }
       if (height) { props.set('height', height); }
       if (ratio) { props.set('ratio', ratio); }
 
       if (props.has('direction')) {
         node.name = [...props.values()].join(' ');
+      } else {
+        figma.closePlugin('Not Auto Layout');
       }
     }
   } else {
-    figma.closePlugin('Not Frame');
+    figma.closePlugin('Not frames');
   }
 }
