@@ -11,7 +11,7 @@
   "parameters": [
     {
       "name": "Command?",
-      "key": "task",
+      "key": "key",
       "description": "Type a space to see all commands."
     }
   ]

@@ -4,11 +4,11 @@ import { setLayerName } from './setLayerName';
 import { setObjectSize } from './setObjectSize';
 
 type Command = {
-  message: string;
+  message: string ;
   task: (node: SceneNode) => void;
 }
-const commands = new Map<string, Command>();
 
+const commands = new Map<string, Command>();
 commands.set(
   'Auto Layout by Name',
   { message: 'Auto layout added', task: (node) => setAutoLayout(node) }
@@ -46,13 +46,12 @@ figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
 
 figma.on('run', ({ parameters }: RunEvent) => {
   if (parameters) {
-    const command = commands.get(parameters.task);
     const nodeList = figma.currentPage.selection;
+    const command = commands.get(parameters.key);
     if (nodeList.length > 0 && command) {
       nodeList.forEach(node => command.task(node));
       figma.closePlugin(command.message);
-    } else {
-      figma.closePlugin('Please select a layer');
     }
   }
+  figma.closePlugin();
 });
