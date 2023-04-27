@@ -19,6 +19,7 @@ export function setObjectSize (currentNode: SceneNode): void {
       } else if (values.has('width') && !values.has('height')) {
         values.set('height', calculateByRatio(values.get('width')));
       }
+
       if (isStretch(currentNode) && !values.has('height')) {
         values.set('height', calculateByRatio(currentNode.width));
       }

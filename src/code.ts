@@ -1,7 +1,9 @@
+import { runMainTask } from './runMainTask';
 import { setAutoLayout } from './setAutoLayout';
 import { setFlexibility } from './setFlexibility';
 import { setLayerName } from './setLayerName';
 import { setObjectSize } from './setObjectSize';
+
 
 type Command = {
   message: string ;
@@ -10,17 +12,21 @@ type Command = {
 
 const commands = new Map<string, Command>();
 commands.set(
-  'Auto Layout by Name',
-  { message: 'Auto layout added', task: (node) => setAutoLayout(node) }
+  'Layout by Layer Name',
+  { message: 'Auto layout added, and resized', task: (node) => runMainTask(node) }
 );
 commands.set(
   'Overwrite with Auto Layout',
   { message: 'Layer name rewrited', task: (node) => setLayerName(node) }
 );
-commands.set(
-  'Resize by Name',
-  { message: 'Resized', task: (node) => setObjectSize(node) }
-);
+// commands.set(
+//   'Auto Layout by Layer Name',
+//   { message: 'Auto layout added', task: (node) => setAutoLayout(node) }
+// );
+// commands.set(
+//   'Resize by Layer Name',
+//   { message: 'Resized', task: (node) => setObjectSize(node) }
+// );
 commands.set(
   'Fill Horizontally',
   { message: 'Fill', task: (node) => setFlexibility(node, 'fill') }
