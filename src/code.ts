@@ -1,5 +1,5 @@
 import { setAutoLayout } from './setAutoLayout';
-import { setFlexAxis } from './setFlexAxis';
+import { setFlexibility } from './setFlexibility';
 import { setLayerName } from './setLayerName';
 import { setObjectSize } from './setObjectSize';
 
@@ -23,11 +23,11 @@ commands.set(
 );
 commands.set(
   'Fill Horizontally',
-  { message: 'Fill', task: (node) => setFlexAxis(node, 'fill') }
+  { message: 'Fill', task: (node) => setFlexibility(node, 'fill') }
 );
 commands.set(
   'Hug Vertically',
-  { message: 'Hug', task: (node) => setFlexAxis(node, 'hug') }
+  { message: 'Hug', task: (node) => setFlexibility(node, 'hug') }
 );
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {

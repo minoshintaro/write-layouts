@@ -23,6 +23,6 @@ export function setAutoLayout (currentNode: SceneNode): void {
       // console.log('autoLayout:', node.layoutMode, node.primaryAxisAlignItems, node.itemSpacing, node.paddingTop, node.paddingBottom, node.paddingLeft, node.paddingRight);
     }
   } else {
-    figma.closePlugin('Please select frames');
+    figma.closePlugin('Not frames');
   }
 }
