@@ -1,5 +1,6 @@
 import { getValuesFromName } from "./getValuesFromName";
 import { isStretch } from "./isStretch";
+import { getLayoutMode } from "./getLayoutMode";
 
 export function setObjectSize (currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME' || currentNode.type === 'RECTANGLE') {
@@ -9,6 +10,20 @@ export function setObjectSize (currentNode: SceneNode): void {
       const result = Math.round(value * values.get(type === 'inverse' ? 'inverseRatio' : 'ratio'));
       return result >= 1 ? result : 1;
     };
+
+    if (values.has('width')) {
+      switch (getLayoutMode(currentNode, 'parent')) {
+        case 'HORIZONTAL': {
+          currentNode.layoutGrow = 0;
+          break;
+        }
+        case 'VERTICAL': {
+          currentNode.layoutAlign = 'INHERIT';
+          break;
+        }
+        default: break;
+      }
+    }
 
     if (values.has('ratio')) {
       if (!values.has('width') && !values.has('height')) {
