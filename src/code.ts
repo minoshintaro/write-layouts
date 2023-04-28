@@ -1,9 +1,8 @@
 import { runMainTask } from './runMainTask';
-import { setAutoLayout } from './setAutoLayout';
+// import { setAutoLayout } from './setAutoLayout';
 import { setFlexibility } from './setFlexibility';
 import { setLayerName } from './setLayerName';
-import { setObjectSize } from './setObjectSize';
-
+// import { setObjectSize } from './setObjectSize';
 
 type Command = {
   message: string ;

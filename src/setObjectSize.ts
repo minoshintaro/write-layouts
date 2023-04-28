@@ -1,6 +1,6 @@
+import { getLayoutMode } from "./getLayoutMode";
 import { getValuesFromName } from "./getValuesFromName";
 import { isStretch } from "./isStretch";
-import { getLayoutMode } from "./getLayoutMode";
 
 export function setObjectSize (currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME' || currentNode.type === 'RECTANGLE') {
@@ -14,10 +14,12 @@ export function setObjectSize (currentNode: SceneNode): void {
     if (values.has('width')) {
       switch (getLayoutMode(currentNode, 'parent')) {
         case 'HORIZONTAL': {
+          console.log('Change layoutGrow', [...values.keys()]);
           currentNode.layoutGrow = 0;
           break;
         }
         case 'VERTICAL': {
+          console.log('Change layoutAlign', [...values.keys()]);
           currentNode.layoutAlign = 'INHERIT';
           break;
         }
