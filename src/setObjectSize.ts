@@ -3,7 +3,12 @@ import { getValuesFromName } from "./getValuesFromName";
 import { isStretch } from "./isStretch";
 
 export function setObjectSize (currentNode: SceneNode): void {
-  if (currentNode.type === 'FRAME' || currentNode.type === 'RECTANGLE') {
+  if (
+    currentNode.type === 'FRAME' ||
+    currentNode.type === 'COMPONENT' ||
+    currentNode.type === 'INSTANCE' ||
+    currentNode.type === 'RECTANGLE'
+  ) {
     const values = getValuesFromName(currentNode);
 
     const calculateByRatio = (value: number, type?: string): number => {

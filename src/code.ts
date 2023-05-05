@@ -1,8 +1,7 @@
-import { runMainTask } from './runMainTask';
-// import { setAutoLayout } from './setAutoLayout';
+import { setAutoLayout } from './setAutoLayout';
 import { setFlexibility } from './setFlexibility';
 import { setLayerName } from './setLayerName';
-// import { setObjectSize } from './setObjectSize';
+import { setObjectSize } from './setObjectSize';
 
 type Command = {
   message: string ;
@@ -10,22 +9,21 @@ type Command = {
 }
 
 const commands = new Map<string, Command>();
+
 commands.set(
-  'Layout by Layer Name',
-  { message: 'Auto layout added, and resized', task: (node) => runMainTask(node) }
+  'Layout by Layer Names',
+  {
+    message: 'Auto layout added, and resized',
+    task: (node) => {
+      setAutoLayout(node);
+      setObjectSize(node);
+    }
+  }
 );
 commands.set(
   'Overwrite with Auto Layout',
   { message: 'Layer name rewrited', task: (node) => setLayerName(node) }
 );
-// commands.set(
-//   'Auto Layout by Layer Name',
-//   { message: 'Auto layout added', task: (node) => setAutoLayout(node) }
-// );
-// commands.set(
-//   'Resize by Layer Name',
-//   { message: 'Resized', task: (node) => setObjectSize(node) }
-// );
 commands.set(
   'Fill Horizontally',
   { message: 'Fill', task: (node) => setFlexibility(node, 'fill') }
@@ -33,6 +31,10 @@ commands.set(
 commands.set(
   'Hug Vertically',
   { message: 'Hug', task: (node) => setFlexibility(node, 'hug') }
+);
+commands.set(
+  'Resize Selections',
+  { message: 'Resized', task: (node) => setObjectSize(node) }
 );
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
