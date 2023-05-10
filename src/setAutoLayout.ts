@@ -1,12 +1,12 @@
 import { getFrameNodeList } from "./getFrameNodeList";
 import { getValuesFromName } from "./getValuesFromName";
 
-export function setAutoLayout (currentNode: SceneNode): void {
+export function setAutoLayout(currentNode: SceneNode): void {
   if (currentNode.type === 'FRAME' || currentNode.type === 'COMPONENT') {
 
     for (const node of getFrameNodeList(currentNode)) {
-      const values = getValuesFromName(node);
       const AlignmentValueOf = (node: FrameNode): string => (node.primaryAxisAlignItems === 'SPACE_BETWEEN') ? 'MIN' : node.primaryAxisAlignItems;
+      const values = getValuesFromName(node);
 
       if (values.has('direction')) {
         node.layoutMode = values.get('direction');
@@ -20,7 +20,5 @@ export function setAutoLayout (currentNode: SceneNode): void {
 
       // console.log('autoLayout:', node.layoutMode, node.primaryAxisAlignItems, node.itemSpacing, node.paddingTop, node.paddingBottom, node.paddingLeft, node.paddingRight);
     }
-  } else {
-    figma.closePlugin('Not frames');
   }
 }

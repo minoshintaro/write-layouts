@@ -2,7 +2,7 @@ import { convertTo } from './convertTo';
 import { getSplitNameList } from './getSplitNameList';
 import { patterns } from './patterns';
 
-export function getValuesFromName (node: SceneNode) {
+export function getValuesFromName(node: SceneNode) {
   const map = new Map();
 
   for (const name of getSplitNameList(node)) {

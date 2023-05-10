@@ -1,6 +1,6 @@
 import { getLayoutMode } from "./getLayoutMode";
 
-export function setFlexibility (currentNode: SceneNode, key: string): void {
+export function setFlexibility(currentNode: SceneNode, key: string): void {
   let message: string = '';
 
   if (
