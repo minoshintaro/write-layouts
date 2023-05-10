@@ -22,19 +22,31 @@ commands.set(
 );
 commands.set(
   'Overwrite with Auto Layout',
-  { message: 'Layer name rewrited', task: (node) => setLayerName(node) }
+  {
+    message: 'Layer name rewrited',
+    task: (node) => setLayerName(node)
+  }
 );
 commands.set(
   'Fill Horizontally',
-  { message: 'Fill', task: (node) => setFlexibility(node, 'fill') }
+  {
+    message: 'Fill',
+    task: (node) => setFlexibility(node, 'fill')
+  }
 );
 commands.set(
   'Hug Vertically',
-  { message: 'Hug', task: (node) => setFlexibility(node, 'hug') }
+  {
+    message: 'Hug',
+    task: (node) => setFlexibility(node, 'hug')
+  }
 );
 commands.set(
   'Resize Selections',
-  { message: 'Resized', task: (node) => setObjectSize(node) }
+  {
+    message: 'Resized',
+    task: (node) => setObjectSize(node)
+  }
 );
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
