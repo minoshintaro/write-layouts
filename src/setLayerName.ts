@@ -2,50 +2,68 @@ import { getFrameNodeList } from "./getFrameNodeList";
 import { getSplitNameList } from './getSplitNameList';
 
 export function setLayerName (currentNode: SceneNode): void {
-  if (currentNode.type === 'FRAME' || currentNode.type === 'COMPONENT') {
-    for (const node of getFrameNodeList(currentNode)) {
-      const props = new Map<string, string>();
-      const name = getSplitNameList(node, 'notPropName').join(' ');
-      const gap = node.itemSpacing;
-      const pt = node.paddingTop;
-      const pb = node.paddingBottom;
-      const pl = node.paddingLeft;
-      const pr = node.paddingRight;
-      const px = (pl === pr) ? pl : 0;
-      const py = (pt === pb) ? pt : 0;
+  const type = currentNode.type;
+  if (type !== 'FRAME' && type !== 'COMPONENT') return;
+
+  for (const node of getFrameNodeList(currentNode)) {
+    const props: {
+      inheritedName: string;
+      gap: number;
+      pt: number;
+      pb: number;
+      pl: number;
+      pr: number;
+      width: string;
+      height: string;
+      ratio: string;
+    } = {
+      inheritedName: getSplitNameList(node, 'notPropName').join(' '),
+      gap: node.itemSpacing,
+      pt: node.paddingTop,
+      pb: node.paddingBottom,
+      pl: node.paddingLeft,
+      pr: node.paddingRight,
+      width: getSplitNameList(node, 'width').slice(-1)[0],
+      height: getSplitNameList(node, 'height').slice(-1)[0],
+      ratio: getSplitNameList(node, 'ratio').slice(-1)[0]
+    };
+
+    const hasShorthand = (type: string): boolean => {
+      const px = (props.pl === props.pr) ? props.pl : 0;
+      const py = (props.pt === props.pb) ? props.pt : 0;
       const p = (px === py) ? px : 0;
-      const width = getSplitNameList(node, 'width').slice(-1).toString();
-      const height = getSplitNameList(node, 'height').slice(-1).toString();
-      const ratio = getSplitNameList(node, 'ratio').slice(-1).toString();
 
-      if (name) props.set('name', name);
-
-      if (node.layoutMode === 'HORIZONTAL') props.set('direction', 'row');
-      if (node.layoutMode === 'VERTICAL') props.set('direction', 'col');
-
-      if (node.primaryAxisAlignItems === 'SPACE_BETWEEN') {
-        props.set('gap', 'g-auto');
-      } else if (node.itemSpacing !== 0) {
-        props.set('gap', `g-${gap}`);
+      switch (type) {
+        case 'px': return (!p && px) ? true : false;
+        case 'py': return (!p && py) ? true : false;
+        case 'p': return p ? true : false;
+        default: return false;
       }
+    };
 
-      if (p) props.set('padding', `p-${p}`);
-      if (!p && px) props.set('paddingInline', `px-${px}`);
-      if (!p && py) props.set('paddingBlock', `py-${py}`);
-      if (!py && pt) props.set('paddingTop', `pt-${pt}`);
-      if (!py && pb) props.set('paddingBottom', `pb-${pb}`);
-      if (!px && pl) props.set('paddingLeft', `pl-${pl}`);
-      if (!px && pr) props.set('paddingRight', `pr-${pr}`);
+    const names = new Map<string, string>();
+    if (props.inheritedName) names.set('name', props.inheritedName);
 
-      if (width) props.set('width', width);
-      if (height) props.set('height', height);
-      if (ratio) props.set('ratio', ratio);
+    if (node.layoutMode === 'HORIZONTAL') names.set('direction', 'row');
+    if (node.layoutMode === 'VERTICAL') names.set('direction', 'col');
 
-      if (props.has('direction')) {
-        node.name = [...props.values()].join(' ');
-      } else {
-        figma.closePlugin('Not Auto Layout');
-      }
+    if (node.primaryAxisAlignItems === 'SPACE_BETWEEN') names.set('gap', 'g-auto');
+    if (node.itemSpacing !== 0 && !names.has('gap')) names.set('gap', `g-${props.gap}`);
+
+    if (hasShorthand('p')) names.set('padding', `p-${props.pl}`);
+    if (hasShorthand('px')) names.set('paddingInline', `px-${props.pl}`);
+    if (hasShorthand('py')) names.set('paddingBlock', `py-${props.pt}`);
+    if (!hasShorthand('py') && props.pt) names.set('paddingTop', `pt-${props.pt}`);
+    if (!hasShorthand('py') && props.pb) names.set('paddingBottom', `pb-${props.pb}`);
+    if (!hasShorthand('px') && props.pl) names.set('paddingLeft', `pl-${props.pl}`);
+    if (!hasShorthand('px') && props.pr) names.set('paddingRight', `pr-${props.pr}`);
+
+    if (props.width) names.set('width', props.width);
+    if (props.height) names.set('height', props.height);
+    if (props.ratio) names.set('ratio', props.ratio);
+
+    if (names.has('direction')) {
+      node.name = [...names.values()].join(' ');
     }
   }
 }

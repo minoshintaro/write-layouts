@@ -4,14 +4,13 @@ import { setLayerName } from './setLayerName';
 import { setObjectSize } from './setObjectSize';
 
 type Command = {
-  message: string ;
+  message: string;
   task: (node: SceneNode) => void;
 }
-
 const commands = new Map<string, Command>();
 
 commands.set(
-  'Layout by Layer Names',
+  'Layout by Name',
   {
     message: 'Auto layout added, and resized',
     task: (node) => {
@@ -30,14 +29,14 @@ commands.set(
 commands.set(
   'Fill Horizontally',
   {
-    message: 'Fill',
+    message: 'Fill container',
     task: (node) => setFlexibility(node, 'fill')
   }
 );
 commands.set(
   'Hug Vertically',
   {
-    message: 'Hug',
+    message: 'Hug content',
     task: (node) => setFlexibility(node, 'hug')
   }
 );
@@ -52,7 +51,7 @@ commands.set(
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
   const listOf = (targets: string[], key: string): string[] => {
     switch (key) {
-      case '': return targets.slice(0, 2);
+      case '': return targets.slice(0, 4);
       case ' ': return targets;
       default: {
         const pattern = RegExp(`^${key.trim()}`, 'i');
