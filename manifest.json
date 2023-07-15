@@ -5,14 +5,13 @@
   "main": "dist/code.js",
   "capabilities": [],
   "enableProposedApi": false,
-  "editorType": [
-    "figma"
-  ],
+  "editorType": ["figma"],
   "parameters": [
     {
-      "name": "Command?",
-      "key": "key",
-      "description": "Type a space to see all commands."
+      "name": "Input props...",
+      "key": "writtenWord",
+      "description": "Type layout props (Example: 'col g-24', 'row g-auto py-8 px-16')",
+      "allowFreeform": true
     }
   ]
 }

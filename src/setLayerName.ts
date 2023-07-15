@@ -42,6 +42,7 @@ export function setLayerName (currentNode: SceneNode): void {
     };
 
     const names = new Map<string, string>();
+
     if (props.inheritedName) names.set('name', props.inheritedName);
 
     if (node.layoutMode === 'HORIZONTAL') names.set('direction', 'row');
@@ -50,13 +51,16 @@ export function setLayerName (currentNode: SceneNode): void {
     if (node.primaryAxisAlignItems === 'SPACE_BETWEEN') names.set('gap', 'g-auto');
     if (node.itemSpacing !== 0 && !names.has('gap')) names.set('gap', `g-${props.gap}`);
 
-    if (hasShorthand('p')) names.set('padding', `p-${props.pl}`);
-    if (hasShorthand('px')) names.set('paddingInline', `px-${props.pl}`);
-    if (hasShorthand('py')) names.set('paddingBlock', `py-${props.pt}`);
-    if (!hasShorthand('py') && props.pt) names.set('paddingTop', `pt-${props.pt}`);
-    if (!hasShorthand('py') && props.pb) names.set('paddingBottom', `pb-${props.pb}`);
-    if (!hasShorthand('px') && props.pl) names.set('paddingLeft', `pl-${props.pl}`);
-    if (!hasShorthand('px') && props.pr) names.set('paddingRight', `pr-${props.pr}`);
+    if (hasShorthand('p')) {
+      names.set('padding', `p-${props.pl}`);
+    } else {
+      if (hasShorthand('px')) names.set('paddingInline', `px-${props.pl}`);
+      if (hasShorthand('py')) names.set('paddingBlock', `py-${props.pt}`);
+      if (!hasShorthand('py') && props.pt) names.set('paddingTop', `pt-${props.pt}`);
+      if (!hasShorthand('py') && props.pb) names.set('paddingBottom', `pb-${props.pb}`);
+      if (!hasShorthand('px') && props.pl) names.set('paddingLeft', `pl-${props.pl}`);
+      if (!hasShorthand('px') && props.pr) names.set('paddingRight', `pr-${props.pr}`);
+    }
 
     if (props.width) names.set('width', props.width);
     if (props.height) names.set('height', props.height);

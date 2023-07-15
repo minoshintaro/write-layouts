@@ -1,75 +1,110 @@
-import { setAutoLayout } from './setAutoLayout';
-import { setFlexibility } from './setFlexibility';
-import { setLayerName } from './setLayerName';
-import { setObjectSize } from './setObjectSize';
+import { getFramesIncludeChildren } from "./features/getFramesIncludeChildren";
+import { getValueMapFromString } from "./features/getValueMapFromString";
+import { setLayoutByValueMap } from "./features/setLayoutByValueMap";
+import { setNameForFrames } from "./features/setNameForFrames";
+import { setSizeByValueMap } from "./features/setSizeByValueMap";
 
-type Command = {
-  message: string;
-  task: (node: SceneNode) => void;
-}
-const commands = new Map<string, Command>();
-
-commands.set(
-  'Layout by Name',
-  {
-    message: 'Auto layout added, and resized',
-    task: (node) => {
-      setAutoLayout(node);
-      setObjectSize(node);
-    }
-  }
-);
-commands.set(
-  'Overwrite with Auto Layout',
-  {
-    message: 'Layer name rewrited',
-    task: (node) => setLayerName(node)
-  }
-);
-commands.set(
-  'Fill Horizontally',
-  {
-    message: 'Fill container',
-    task: (node) => setFlexibility(node, 'fill')
-  }
-);
-commands.set(
-  'Hug Vertically',
-  {
-    message: 'Hug content',
-    task: (node) => setFlexibility(node, 'hug')
-  }
-);
-commands.set(
-  'Resize Selections',
-  {
-    message: 'Resized',
-    task: (node) => setObjectSize(node)
-  }
-);
+const actionList = [
+  'Name by AutoLayout',
+  'AutoLayout by name',
+  'Overwrite name by AutoLayout',
+  'col',
+  'col g-24',
+  'col g-24 p-16',
+  'col g-24 py-8 px-16',
+  'col g-24 pt-8 pb-16 pl-8 pr-16',
+  'row',
+  'row g-24',
+  'row g-24 p-16',
+  'row g-24 py-8 px-16',
+  'row g-24 pt-8 pb-16 pl-8 pr-16',
+  'wrap',
+  'wrap g-24',
+  'wrap g-24 p-16',
+  'wrap g-24 py-8 px-16',
+  'wrap g-24 pt-8 pb-16 pl-8 pr-16',
+  'g-auto',
+  '1x1',
+  '2x1',
+  '4x3',
+  '5x4',
+  '8x5',
+  '16x9',
+  '21x9',
+  'Check'
+];
 
 figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
-  const listOf = (targets: string[], key: string): string[] => {
-    switch (key) {
-      case '': return targets.slice(0, 4);
-      case ' ': return targets;
-      default: {
-        const pattern = RegExp(`^${key.trim()}`, 'i');
-        return targets.filter(item => item.match(pattern));
-      }
+  // console.log('query:', query);
+
+  switch (query) {
+    case '': {
+      result.setSuggestions(actionList.slice(0, 2));
+      break;
+    }
+    default: {
+      const pattern = RegExp(`^${query.trim()}`, 'i');
+      result.setSuggestions(actionList.filter(action => action.match(pattern)));
+      break;
     }
   }
-  result.setSuggestions(listOf([...commands.keys()], query));
 });
 
 figma.on('run', ({ parameters }: RunEvent) => {
-  if (parameters) {
-    const nodeList = figma.currentPage.selection;
-    const command = commands.get(parameters.key);
-    if (nodeList.length > 0 && command) {
-      nodeList.forEach(node => command.task(node));
-      figma.closePlugin(command.message);
+  if (!parameters) return figma.closePlugin('No selections');
+
+  console.log('input:', parameters.writtenWord);
+  let message = 'Set AutoLayout';
+
+  for (const node of figma.currentPage.selection) {
+    switch (parameters.writtenWord) {
+      case actionList[0]: {
+        if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'COMPONENT_SET') {
+          setNameForFrames(getFramesIncludeChildren(node));
+        }
+        message = 'Renamed frames, excluding the edited name';
+        break;
+      }
+
+      case actionList[1]: {
+        if (node.type === 'FRAME') {
+          setLayoutByValueMap(node, getValueMapFromString(node.name));
+          setNameForFrames([node]);
+        }
+        message = 'Set AutoLayout'
+        break;
+      }
+
+      case actionList[2]: {
+        if (node.type === 'FRAME') {
+          setNameForFrames([node], 'overwrite');
+        }
+        message = 'Overwrote the name';
+        break;
+      }
+
+      case actionList[actionList.length - 1]: {
+        message = `${node.type}, ${node.parent ? node.parent.type : 'NONE'}`;
+        break;
+      }
+
+      default: {
+        const values = getValueMapFromString(parameters.writtenWord);
+
+        if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE' || node.type === 'RECTANGLE') {
+          setSizeByValueMap(node, values);
+        }
+        if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'COMPONENT_SET') {
+          setLayoutByValueMap(node, values);
+        }
+        if (node.type === 'FRAME') {
+          setNameForFrames([node]);
+        }
+
+        break;
+      }
     }
   }
-  figma.closePlugin();
+
+  figma.closePlugin(message);
 });

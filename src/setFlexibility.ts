@@ -42,7 +42,11 @@ export function setFlexibility(currentNode: SceneNode, key: string): void {
     }
   }
 
-  if (currentNode.type === 'FRAME' || currentNode.type === 'INSTANCE' || currentNode.type === 'COMPONENT') {
+  if (
+    currentNode.type === 'FRAME' ||
+    currentNode.type === 'INSTANCE' ||
+    currentNode.type === 'COMPONENT'
+  ) {
     switch (getLayoutMode(currentNode)) {
       case 'HORIZONTAL': {
         if (key === 'fill') {
