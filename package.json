@@ -8,6 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsc --watch",
     "b": "run-s clean parcel:build",
+    "parcel:watch": "parcel src/code.ts",
     "parcel:build": "parcel build src/code.ts",
     "d": "tsc --watch"
   },

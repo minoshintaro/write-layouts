@@ -31,6 +31,7 @@ const actionList = [
   '8x5',
   '16x9',
   '21x9',
+  'Scale',
   'Check'
 ];
 
@@ -80,6 +81,11 @@ figma.on('run', ({ parameters }: RunEvent) => {
           setNameForFrames([node], 'overwrite');
         }
         message = 'Overwrote the name';
+        break;
+      }
+
+      case 'Scale': {
+        message = 'Set scale';
         break;
       }
 
