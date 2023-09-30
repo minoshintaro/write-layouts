@@ -1,116 +1,39 @@
-import { getFramesIncludeChildren } from "./features/getFramesIncludeChildren";
-import { getValueMapFromString } from "./features/getValueMapFromString";
-import { setLayoutByValueMap } from "./features/setLayoutByValueMap";
-import { setNameForFrames } from "./features/setNameForFrames";
-import { setSizeByValueMap } from "./features/setSizeByValueMap";
+import { LayoutProp } from "./types";
+import { menu } from "./objects";
+import { includeSubNodes, isSettingMode, isNamingMode } from "./boolean";
+import { addTailwindProps } from "./add";
+import { findMatchedWords } from "./find";
+import { generateNameFrom } from "./generate";
+import { getTargetNodes } from "./get";
+import { setLayoutProp } from "./set";
 
-const actionList = [
-  'Name by AutoLayout',
-  'AutoLayout by name',
-  'Overwrite name by AutoLayout',
-  'col',
-  'col g-24',
-  'col g-24 p-16',
-  'col g-24 py-8 px-16',
-  'col g-24 pt-8 pb-16 pl-8 pr-16',
-  'row',
-  'row g-24',
-  'row g-24 p-16',
-  'row g-24 py-8 px-16',
-  'row g-24 pt-8 pb-16 pl-8 pr-16',
-  'wrap',
-  'wrap g-24',
-  'wrap g-24 p-16',
-  'wrap g-24 py-8 px-16',
-  'wrap g-24 pt-8 pb-16 pl-8 pr-16',
-  'g-auto',
-  '1x1',
-  '2x1',
-  '4x3',
-  '5x4',
-  '8x5',
-  '16x9',
-  '21x9',
-  'Scale',
-  'Check'
-];
+figma.skipInvisibleInstanceChildren = true;
 
-figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
-  // console.log('query:', query);
-
-  switch (query) {
-    case '': {
-      result.setSuggestions(actionList.slice(0, 2));
-      break;
-    }
-    default: {
-      const pattern = RegExp(`^${query.trim()}`, 'i');
-      result.setSuggestions(actionList.filter(action => action.match(pattern)));
-      break;
-    }
-  }
+// [1] Query -> Input
+figma.parameters.on('input', ({ parameters, key, query, result }: ParameterInputEvent) => {
+  const allFrames = figma.currentPage.findAllWithCriteria({ types: ['FRAME'] });
+  result.setSuggestions(findMatchedWords(allFrames, query));
 });
 
-figma.on('run', ({ parameters }: RunEvent) => {
-  if (!parameters) return figma.closePlugin('No selections');
+// [2] Input -> LayoutProp ClassNames -> Props -> Override
+figma.on('run', ({ command, parameters }: RunEvent) => {
+  const { input } = parameters;
 
-  console.log('input:', parameters.writtenWord);
-  let message = 'Set AutoLayout';
+  // [2-1] All Props / Only Input Props
+  const newLayout: LayoutProp = {};
+  if (command === 'INPUT') addTailwindProps(newLayout, input);
 
-  for (const node of figma.currentPage.selection) {
-    switch (parameters.writtenWord) {
-      case actionList[0]: {
-        if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'COMPONENT_SET') {
-          setNameForFrames(getFramesIncludeChildren(node));
-        }
-        message = 'Renamed frames, excluding the edited name';
-        break;
-      }
-
-      case actionList[1]: {
-        if (node.type === 'FRAME') {
-          setLayoutByValueMap(node, getValueMapFromString(node.name));
-          setNameForFrames([node]);
-        }
-        message = 'Set AutoLayout'
-        break;
-      }
-
-      case actionList[2]: {
-        if (node.type === 'FRAME') {
-          setNameForFrames([node], 'overwrite');
-        }
-        message = 'Overwrote the name';
-        break;
-      }
-
-      case 'Scale': {
-        message = 'Set scale';
-        break;
-      }
-
-      case actionList[actionList.length - 1]: {
-        message = `${node.type}, ${node.parent ? node.parent.type : 'NONE'}`;
-        break;
-      }
-
-      default: {
-        const values = getValueMapFromString(parameters.writtenWord);
-
-        if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'INSTANCE' || node.type === 'RECTANGLE') {
-          setSizeByValueMap(node, values);
-        }
-        if (node.type === 'FRAME' || node.type === 'COMPONENT' || node.type === 'COMPONENT_SET') {
-          setLayoutByValueMap(node, values);
-        }
-        if (node.type === 'FRAME') {
-          setNameForFrames([node]);
-        }
-
-        break;
-      }
+  // [2-2] Selections -> Target
+  const selectedNodes = figma.currentPage.selection;
+  for (const selectedNode of selectedNodes) {
+    for (const node of getTargetNodes(selectedNode, includeSubNodes(command))) {
+      if (node.type !== 'FRAME') continue;
+      if (command === 'RESET' || input === menu.reset) addTailwindProps(newLayout, node.name);
+      if (isSettingMode(command, input)) setLayoutProp(node, newLayout);
+      if (isNamingMode(command, input)) node.name = command !== 'CLEAR' ? generateNameFrom(node) || node.name : 'Frame';
     }
   }
 
-  figma.closePlugin(message);
+  // console.log('test:', command, input, newLayout);
+  figma.closePlugin(command);
 });

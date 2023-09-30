@@ -6,12 +6,22 @@
   "capabilities": [],
   "enableProposedApi": false,
   "editorType": ["figma"],
-  "parameters": [
+  "menu": [
     {
-      "name": "Input props...",
-      "key": "writtenWord",
-      "description": "Type layout props (Example: 'col g-24', 'row g-auto py-8 px-16')",
-      "allowFreeform": true
-    }
+      "name": "Input...",
+      "command": "INPUT",
+      "parameters": [
+        {
+          "name": "flex flex-col",
+          "key": "input",
+          "allowFreeform": true
+        }
+      ]
+    },
+    { "separator": true },
+    { "name": "Rename by Layout", "command": "RENAME" },
+    { "name": "Set Layout by Name", "command": "RESET" },
+    { "separator": true },
+    { "name": "Clear Layout Names", "command": "CLEAR" }
   ]
 }
