@@ -1,12 +1,12 @@
 import { LayoutProp } from "./types";
 import { generateNumberFrom } from "./generate";
 
-export function addTailwindProps(data: LayoutProp, input: string): void {
+export function addToDataFromClassNames(data: LayoutProp, input: string): void {
   const classNameSet = new Set<string>(input.trim().split(' '));
   const flexNames: string[] = ["flex", "flex-row", "flex-col", "flex-wrap"];
 
   // Reset
-  if (classNameSet.has(flexNames[0])) {
+  if (classNameSet.has("flex")) {
     data.flow = 'HORIZONTAL';
     data.wrap = 'NO_WRAP';
     data.gap = 0;
@@ -23,10 +23,13 @@ export function addTailwindProps(data: LayoutProp, input: string): void {
   }
 
   // Flexbox
-  if (classNameSet.has(flexNames[1])) data.flow = 'HORIZONTAL';
-  if (classNameSet.has(flexNames[2])) data.flow = 'VERTICAL';
-  if (classNameSet.has(flexNames[3])) data.wrap = 'WRAP';
-  flexNames.forEach(item => classNameSet.delete(item));
+  if (classNameSet.has("flex-row")) {
+    data.flow = 'HORIZONTAL';
+  } else if (classNameSet.has("flex-col")) {
+    data.flow = 'VERTICAL';
+  } else if (classNameSet.has("flex-wrap")) {
+    data.wrap = 'WRAP';
+  }
 
   // Spacing
   for (const className of classNameSet) {
