@@ -1,19 +1,23 @@
-import { tailwind, menu, pattern } from "./objects";
-import { isMatched } from "./boolean";
+import { tailwind, menu } from "./objects";
+import { isInitialName, isMatchedPrefix } from "./boolean";
 
-export function findMatched(input: string): string[] {
+export function findMatchedList(input: string): string[] {
   switch (input) {
-    case '': return tailwind.flex;
-    case ' ': return Object.values(menu);
-    default: {
-      const allFrames = figma.currentPage.findAllWithCriteria({ types: ['FRAME'] });
-      const currentNameSet = new Set<string>();
-      const queryPattern = new RegExp(`^${input}`);
+  case '': return tailwind.flex;
+  case ' ': return Object.values(menu);
+  case 'f': return ['flex-col', 'flex-row', 'flex-wrap'];
+  case 'c': return ['flex-col'];
+  case 'r': return ['flex-row'];
+  case 'w': return ['flex-wrap'];
+  default: {
+    const allFrames = figma.currentPage.findAllWithCriteria({ types: ['FRAME'] });
+    const currentNameSet = new Set<string>();
 
-      for (const node of allFrames) {
-        if (!isMatched(node.name, pattern.initialFrameName)) currentNameSet.add(node.name);
-      }
-      return [...currentNameSet].filter(item => isMatched(item, queryPattern)).sort();
+    for (const frame of allFrames) {
+      if (!isInitialName(frame.name)) currentNameSet.add(frame.name);
     }
+
+    return [...currentNameSet].filter(name => isMatchedPrefix(name, input)).sort();
+  }
   }
 }

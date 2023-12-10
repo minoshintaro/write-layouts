@@ -1,8 +1,7 @@
 
-export function getTargetNodes(node: SceneNode, flag: boolean): SceneNode[] {
-  const subNodes = 'findAllWithCriteria' in node ? node.findAllWithCriteria({ types: ['FRAME'] }) : [];
-  return flag ? [node, ...subNodes] : [node];
-};
+export function getSubNodes(node: SceneNode): SceneNode[] {
+  return 'findAllWithCriteria' in node ? node.findAllWithCriteria({ types: ['FRAME'] }) : [];
+}
 
 export function getNameForFrame(node: SceneNode): string | null {
   if (node.type !== 'FRAME' || node.type === 'FRAME' && node.layoutMode === 'NONE') return null;

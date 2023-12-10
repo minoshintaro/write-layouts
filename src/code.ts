@@ -1,37 +1,52 @@
 import { LayoutProp } from "./types";
-import { menu } from "./objects";
-import { includeSubNodes, isSettingMode, isNamingMode } from "./boolean";
-import { addToDataFromClassNames } from "./add";
-import { findMatched } from "./find";
+import { isInputMode, isRenameMode, isResetMode, isClearMode } from "./boolean";
+import { editPropsByClassName } from "./edit";
+import { findMatchedList } from "./find";
 import { generateNameFrom } from "./generate";
-import { getTargetNodes } from "./get";
+import { getSubNodes } from "./get";
 import { setLayoutProp } from "./set";
 
 figma.skipInvisibleInstanceChildren = true;
 
-// [1] Query -> Input
-figma.parameters.on('input', ({ parameters, key, query, result }: ParameterInputEvent) => {
-  result.setSuggestions(findMatched(query));
+// [1] Query -> Input (ClassName | Menu)
+
+figma.parameters.on('input', ({ query, result }: ParameterInputEvent) => {
+  result.setSuggestions(findMatchedList(query));
 });
 
-// [2] Input -> LayoutProp ClassNames -> Props -> Override
+// [2] Input -> ClassName -> Layout props
+// - INPUT { 属性上書き: true, 名前上書き: true }
+// - RENAME { 属性上書き: false, 名前上書き: true }
+// - RESET { 属性上書き: true, 名前上書き: false }
+// - CLEAR { 属性上書き: false, 名前上書き: true }
+
 figma.on('run', ({ command, parameters }: RunEvent) => {
-  const { input } = parameters;
-
-  // [2-1] All Props | Only Input Props
   const newLayout: LayoutProp = {};
-  if (command === 'INPUT') addToDataFromClassNames(newLayout, input);
+  const input = parameters ? parameters.input.trim() : null;
+  let closingMessage = 'Not Change';
 
-  // [2-2] Selections -> Target
   for (const selectedNode of figma.currentPage.selection) {
-    for (const node of getTargetNodes(selectedNode, includeSubNodes(command))) {
+    const nodes = isInputMode(command, input) ? [selectedNode] : [selectedNode, ...getSubNodes(selectedNode)];
+
+    for (const node of nodes) {
       if (node.type !== 'FRAME') continue;
-      if (command === 'RESET' || input === menu.reset) addToDataFromClassNames(newLayout, node.name);
-      if (isSettingMode(command, input)) setLayoutProp(node, newLayout);
-      if (isNamingMode(command, input)) node.name = command !== 'CLEAR' ? generateNameFrom(node) || node.name : 'Frame';
+      const { name } = node;
+
+      if (isInputMode(command, input)) {
+        setLayoutProp(node, editPropsByClassName(newLayout, input));
+        node.name = generateNameFrom(node) || name;
+        closingMessage = 'Set Layout';
+      } else if (isRenameMode(command, input)) {
+        node.name = generateNameFrom(node) || name;
+        closingMessage = 'Renamed';
+      } else if (isResetMode(command, input)) {
+        setLayoutProp(node, editPropsByClassName(newLayout, name));
+        closingMessage = 'Set Layouts';
+      } else if (isClearMode(command, input)) {
+        node.name = 'Frame';
+        closingMessage = 'Clear Frame Names';
+      }
     }
   }
-
-  // console.log('test:', command, input, newLayout);
-  figma.closePlugin(command);
+  figma.closePlugin(closingMessage);
 });

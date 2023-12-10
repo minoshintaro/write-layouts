@@ -10,11 +10,9 @@ export const menu: Menu = {
 };
 
 type Pattern = {
-  initialFrameName: RegExp;
   tailwindPrefix: RegExp;
 }
 export const pattern: Pattern = {
-  initialFrameName: /^Frame(?: [0-9]{1,9})?$/,
   tailwindPrefix: /^(flex|gap|gap-x|gap-y|p|px|py|pl|pr|pt|pb|aspect|w|min-w|max-w|h|min-h|max-h)-/
 };
 

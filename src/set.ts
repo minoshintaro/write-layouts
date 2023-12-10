@@ -14,8 +14,8 @@ export function setLayoutProp(node: SceneNode, data: LayoutProp): void {
 
 
 }
-  // frame.primaryAxisSizingMode = layoutPropMap.get('primaryAxisSizingMode') || primaryAxisSizingMode;
-  // frame.counterAxisSizingMode = layoutPropMap.get('counterAxisSizingMode') || counterAxisSizingMode;
-  // frame.primaryAxisAlignItems = layoutPropMap.get('primaryAxisAlignItems') || primaryAxisAlignItems;
-  // frame.counterAxisAlignItems = layoutPropMap.get('counterAxisAlignItems') || counterAxisAlignItems;
-  // frame.counterAxisAlignContent = layoutPropMap.get('counterAxisAlignContent') || counterAxisAlignContent;
+// frame.primaryAxisSizingMode = layoutPropMap.get('primaryAxisSizingMode') || primaryAxisSizingMode;
+// frame.counterAxisSizingMode = layoutPropMap.get('counterAxisSizingMode') || counterAxisSizingMode;
+// frame.primaryAxisAlignItems = layoutPropMap.get('primaryAxisAlignItems') || primaryAxisAlignItems;
+// frame.counterAxisAlignItems = layoutPropMap.get('counterAxisAlignItems') || counterAxisAlignItems;
+// frame.counterAxisAlignContent = layoutPropMap.get('counterAxisAlignContent') || counterAxisAlignContent;

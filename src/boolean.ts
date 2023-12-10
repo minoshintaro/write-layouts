@@ -1,23 +1,27 @@
 import { menu } from "./objects";
 
-export function isMatched(input: string, pattern: RegExp): boolean {
-  return pattern.test(input);
+export function isInitialName(input: string): boolean {
+  const initialName = /^Frame(?: [0-9]{1,9})?$/;
+  return initialName.test(input);
 }
 
-// # Menu
-// - INPUT { 配下含む: false, 属性上書き: true, 名前上書き: true }
-// - RENAME { 配下含む: true, 属性上書き: false, 名前上書き: true }
-// - RESET { 配下含む: true, 属性上書き: true, 名前上書き: false }
-// - CLEAR { 配下含む: true, 属性上書き: false, 名前上書き: true }
-
-export function includeSubNodes(input: string): boolean {
-  return input !== 'INPUT';
+export function isMatchedPrefix(word: string, prefix: string): boolean {
+  const pattern = new RegExp(`^${prefix}`);
+  return pattern.test(word);
 }
 
-export function isSettingMode(input: string, option: string): boolean {
-  return input === 'INPUT' || input === 'RESET' || option === menu.reset;
+export function isInputMode(command: string, input: string): boolean {
+  return command === 'INPUT' && !(input === menu.rename || input === menu.reset || input === menu.clear);
 }
 
-export function isNamingMode(input: string, option: string): boolean {
-  return input !== 'RESET' && option !== menu.reset;
+export function isRenameMode(command: string, input: string): boolean {
+  return command === 'RENAME' || command === 'INPUT' && input === menu.rename;
+}
+
+export function isResetMode(command: string, input: string): boolean {
+  return command === 'RESET' || command === 'INPUT' && input === menu.reset;
+}
+
+export function isClearMode(command: string, input: string): boolean {
+  return command === 'CLEAR' || command === 'INPUT' && input === menu.clear;
 }
