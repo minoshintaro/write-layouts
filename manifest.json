@@ -5,14 +5,23 @@
   "main": "dist/code.js",
   "capabilities": [],
   "enableProposedApi": false,
-  "editorType": [
-    "figma"
-  ],
-  "parameters": [
+  "editorType": ["figma"],
+  "menu": [
     {
-      "name": "Command?",
-      "key": "task",
-      "description": "Type a space to see all commands."
-    }
+      "name": "Input...",
+      "command": "INPUT",
+      "parameters": [
+        {
+          "name": "flex flex-col",
+          "key": "input",
+          "allowFreeform": true
+        }
+      ]
+    },
+    { "separator": true },
+    { "name": "Rename by Layout", "command": "RENAME" },
+    { "name": "Set Layout by Name", "command": "RESET" },
+    { "separator": true },
+    { "name": "Clear Layout Names", "command": "CLEAR" }
   ]
 }

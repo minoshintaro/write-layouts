@@ -1,23 +1,22 @@
 {
-  "name": "write-layout",
+  "name": "write-layouts",
   "version": "1.0.0",
   "description": "Your Figma Plugin",
-  "type": "module",
   "scripts": {
-    "clean": "rimraf dist/",
-    "build": "tsc -p tsconfig.json",
-    "dev": "tsc --watch",
-    "b": "run-s clean parcel:build",
-    "parcel:build": "parcel build src/code.ts",
-    "d": "tsc --watch"
+    "dev": "run-p vite:watch",
+    "build": "run-s lint vite:build",
+    "vite:watch": "vite build --watch",
+    "vite:build": "vite build",
+    "lint": "eslint --fix src/*.ts"
   },
   "author": "",
   "license": "",
   "devDependencies": {
-    "@figma/plugin-typings": "^1.62.0",
+    "@figma/plugin-typings": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "eslint": "^8.52.0",
     "npm-run-all": "^4.1.5",
-    "parcel": "^2.8.3",
-    "rimraf": "^4.4.1",
-    "typescript": "^5.0.2"
+    "vite": "^4.5.0"
   }
 }
